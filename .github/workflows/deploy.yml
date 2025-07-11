@@ -1,0 +1,39 @@
+name: 🚀 Deploy Laravel to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ftp-deploy:
+    name: ⭐ Upload to aaPanel FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⭐ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⭐ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: ⭐ Install Composer dependencies (optional)
+        run: composer install --no-dev --prefer-dist --no-interaction
+
+      - name: ⭐ Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}/
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            **/vendor/**
+            .env
+            storage/*
