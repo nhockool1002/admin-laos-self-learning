@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'supabase' => [
+        'url' => env('APP_SUPABASE_URL'),
+        'anon_key' => env('APP_SUPABASE_ANON_KEY'),
+    ],
+
 ];
