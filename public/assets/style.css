@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Marmelad&display=swap');
+
+body {
+    font-family: 'Marmelad', 'Segoe UI', 'Roboto', Arial, sans-serif;
+    background: linear-gradient(135deg, #232946 0%, #3b2f63 100%);
+    color: #eaeaea;
+}
+
+/* Card, button, input, ... style nền tảng có thể thêm ở đây nếu muốn đồng bộ giao diện */
+.card {
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(35,41,70,0.18);
+    background: #232946;
+    border: none;
+    transition: box-shadow 0.3s;
+}
+.card:hover {
+    box-shadow: 0 8px 32px 0 #a992f755;
+}
+input, textarea, select {
+    font-family: inherit;
+}
+
+/* Datatable common style */
+.datatable {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #232946;
+    box-shadow: 0 2px 16px 0 #23294633;
+    margin-bottom: 2rem;
+}
+.datatable-header {
+    background: linear-gradient(90deg, #a992f7 0%, #6c63ff 100%);
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.08rem;
+}
+.datatable-row {
+    background: #232946;
+    transition: background 0.18s;
+}
+.datatable-row:hover {
+    background: #2d3250;
+}
+.datatable-cell {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #2d3250;
+    font-size: 1rem;
+    color: #eaeaea;
+}
+.datatable-action {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+}
+.datatable-action-edit {
+    color: #ffd600;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+.datatable-action-edit:hover {
+    color: #fff176;
+}
+.datatable-action-delete {
+    color: #ff5252;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+.datatable-action-delete:hover {
+    color: #ff867c;
+}
+
+.table-card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(4px);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(35,41,70,0.18);
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    margin-bottom: 2rem;
+}
+.table-admin {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #232946;
+    font-size: 1rem;
+    color: #eaeaea;
+}
+.table-header {
+    background: #2d3250;
+    color: #a992f7;
+    font-weight: 600;
+    font-size: 1.08rem;
+}
+.table-row {
+    background: #232946;
+    transition: background 0.18s;
+}
+.table-row:hover {
+    background: #2d3250;
+}
+.table-cell {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #2d3250;
+    font-size: 1rem;
+    color: #eaeaea;
+    vertical-align: middle;
+}
+.table-action {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+}
+.table-action-edit {
+    color: #ffd600;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+.table-action-edit:hover {
+    color: #fff176;
+}
+.table-action-delete {
+    color: #ff5252;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+.table-action-delete:hover {
+    color: #ff867c;
+}
+.table-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    border-radius: 8px;
+    background: #a992f7;
+    color: #232946;
+    font-weight: 600;
+    margin-left: 8px;
+}
+.table-badge-danger {
+    background: #ff5252;
+    color: #fff;
+}
+.table-dot {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #bbb;
+    margin: 0 auto;
+}
+.table-dot-green {
+    background: #4ade80;
+}
+.table-dot-gray {
+    background: #64748b;
+}
+.table-search {
+    width: 100%;
+    max-width: 340px;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    background: #2d3250;
+    color: #a992f7;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+.table-header th, .table-cell, .table-row th, .table-row td {
+    text-align: left !important;
+}
+
+.sidebar-menu, .sidebar-menu a, .sidebar-menu button, .sidebar-menu span {
+    font-size: 0.98rem !important;
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+} 
