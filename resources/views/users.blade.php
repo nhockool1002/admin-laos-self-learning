@@ -9,6 +9,9 @@
     <!-- Header Navigation Bar -->
     <div class="flex-1 flex flex-col min-h-screen">
         <x-header title="Quản lý Users">
+            <x-slot name="right">
+                <button id="logout-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-8 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-lg">Đăng xuất</button>
+            </x-slot>
             <x-slot name="left">
                 <a href="/" class="bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold p-2 rounded-lg shadow hover:from-gray-700 hover:to-gray-800 transition flex items-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -389,33 +392,7 @@ document.getElementById('user-search').addEventListener('input', function(e) {
     });
 });
 
-// Xử lý logout
-document.getElementById('logout-menu').addEventListener('click', async function(e) {
-    e.preventDefault();
-    
-    try {
-        const token = sessionStorage.getItem('access_token');
-        
-        const response = await fetch('/logout', {
-            method: 'GET',
-            headers: {
-                'Authorization': token
-            }
-        });
-        
-        // Xóa sessionStorage
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('user');
-        
-        // Chuyển hướng về trang login
-        window.location.href = '/login';
-    } catch (error) {
-        // Ngay cả khi có lỗi, vẫn xóa sessionStorage và chuyển hướng
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('user');
-        window.location.href = '/login';
-    }
-});
+// Logout được xử lý bởi file logout.js
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');

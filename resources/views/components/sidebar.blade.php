@@ -55,7 +55,7 @@
             <i class="fa-solid fa-clipboard-check text-lg"></i>
             <span>Kiểm tra</span>
         </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-2xl font-medium transition-all duration-200 group text-[0.98rem] text-purple-100 hover:bg-purple-700/30 hover:shadow">
+        <a href="#" id="logout-menu" class="flex items-center gap-3 px-3 py-2 rounded-2xl font-medium transition-all duration-200 group text-[0.98rem] text-purple-100 hover:bg-purple-700/30 hover:shadow">
             <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
             <span>Đăng xuất</span>
         </a>

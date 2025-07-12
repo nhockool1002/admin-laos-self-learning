@@ -156,40 +156,7 @@ function formatDate(dateStr) {
     return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// Xử lý logout
-document.getElementById('logout-btn').addEventListener('click', async function() {
-    try {
-        const token = sessionStorage.getItem('access_token');
-        
-        const response = await fetch('/logout', {
-            method: 'GET',
-            headers: {
-                'Authorization': token
-            }
-        });
-        
-        // Xóa sessionStorage
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('user');
-        
-        // Chuyển hướng về trang login
-        window.location.href = '/login';
-    } catch (error) {
-        // Ngay cả khi có lỗi, vẫn xóa sessionStorage và chuyển hướng
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('user');
-        window.location.href = '/login';
-    }
-});
-
-// Đăng xuất từ menu
-const logoutMenu = document.getElementById('logout-menu');
-if (logoutMenu) {
-    logoutMenu.onclick = function(e) {
-        e.preventDefault();
-        document.getElementById('logout-btn').click();
-    };
-}
+// Logout được xử lý bởi file logout.js
 </script>
 <!-- Thêm Alpine.js cho hiệu ứng toggle -->
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

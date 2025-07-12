@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="/assets/logout.js"></script>
     @stack('head')
     <style>
         /* Xoá import font và style body ở đây, đã dùng chung qua style.css */
