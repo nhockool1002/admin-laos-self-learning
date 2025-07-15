@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupabaseUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\GameController;
 
 Route::get('/', function () {
     return view('admin');
@@ -39,6 +40,8 @@ Route::get('/admin/users', function () {
 
 Route::get('/admin/courses', function () { return view('courses'); });
 Route::get('/admin/lessons', function () { return view('lessons'); });
+Route::get('/admin/games', function () { return view('games'); });
+Route::get('/admin/game-groups', function () { return view('game-groups'); });
 
 Route::get('/supabase/courses', [CourseController::class, 'index']);
 Route::post('/supabase/courses', [CourseController::class, 'store']);
@@ -50,3 +53,15 @@ Route::post('/supabase/courses/{courseId}/lessons', [CourseController::class, 'c
 Route::get('/supabase/lessons/{id}', [CourseController::class, 'showLesson']);
 Route::put('/supabase/lessons/{id}', [CourseController::class, 'updateLesson']);
 Route::delete('/supabase/lessons/{id}', [CourseController::class, 'deleteLesson']);
+
+Route::get('/supabase/games', [GameController::class, 'index']);
+Route::post('/supabase/games', [GameController::class, 'store']);
+Route::get('/supabase/games/{id}', [GameController::class, 'show']);
+Route::put('/supabase/games/{id}', [GameController::class, 'update']);
+Route::delete('/supabase/games/{id}', [GameController::class, 'destroy']);
+
+Route::get('/supabase/game-groups', [GameController::class, 'listGroups']);
+Route::post('/supabase/game-groups', [GameController::class, 'createGroup']);
+Route::get('/supabase/game-groups/{id}', [GameController::class, 'showGroup']);
+Route::put('/supabase/game-groups/{id}', [GameController::class, 'updateGroup']);
+Route::delete('/supabase/game-groups/{id}', [GameController::class, 'deleteGroup']);
