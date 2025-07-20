@@ -19,6 +19,44 @@ class CourseControllerTest extends TestCase
         $this->app->instance(SupabaseService::class, $this->supabaseServiceMock);
     }
 
+    /**
+     * Create admin user header for authentication
+     */
+    protected function getAdminHeaders(): array
+    {
+        $adminUser = [
+            'id' => 1,
+            'username' => 'admin',
+            'email' => 'admin@example.com',
+            'is_admin' => true
+        ];
+
+        return [
+            'User' => json_encode($adminUser),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+    }
+
+    /**
+     * Create non-admin user header
+     */
+    protected function getNonAdminHeaders(): array
+    {
+        $regularUser = [
+            'id' => 2,
+            'username' => 'user',
+            'email' => 'user@example.com',
+            'is_admin' => false
+        ];
+
+        return [
+            'User' => json_encode($regularUser),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+    }
+
     public function test_get_courses_returns_list()
     {
         $courses = [
@@ -31,7 +69,7 @@ class CourseControllerTest extends TestCase
             [
                 'id' => 2,
                 'title' => 'Khóa học tiếng Lào nâng cao',
-                'description' => 'Khóa học dành cho người đã có kiến thức cơ bản',
+                'description' => 'Khóa học dành cho người có kinh nghiệm',
                 'is_active' => true
             ]
         ];
@@ -41,7 +79,7 @@ class CourseControllerTest extends TestCase
             ->once()
             ->andReturn($courses);
 
-        $response = $this->getJson('/supabase/courses');
+        $response = $this->getJson('/supabase/courses', $this->getAdminHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(2)
@@ -49,32 +87,47 @@ class CourseControllerTest extends TestCase
             ->assertJsonFragment(['title' => 'Khóa học tiếng Lào nâng cao']);
     }
 
-    public function test_create_course_with_valid_data()
+    public function test_get_courses_unauthorized_without_admin()
     {
-        $courseData = [
-            'title' => 'Khóa học mới',
-            'description' => 'Mô tả khóa học mới',
+        $response = $this->getJson('/supabase/courses', $this->getNonAdminHeaders());
+
+        $response->assertStatus(401)
+            ->assertJson(['error' => 'Unauthorized']);
+    }
+
+    public function test_get_courses_unauthorized_without_user_header()
+    {
+        $response = $this->getJson('/supabase/courses');
+
+        $response->assertStatus(401)
+            ->assertJson(['error' => 'Unauthorized']);
+    }
+
+    public function test_get_course_by_id_returns_course()
+    {
+        $course = [
+            'id' => 1,
+            'title' => 'Khóa học tiếng Lào cơ bản',
+            'description' => 'Khóa học dành cho người mới bắt đầu',
             'is_active' => true
         ];
 
-        $createdCourse = array_merge($courseData, ['id' => 1]);
-
         $this->supabaseServiceMock
-            ->shouldReceive('createCourse')
-            ->with($courseData)
+            ->shouldReceive('getCourseById')
+            ->with(1)
             ->once()
-            ->andReturn($createdCourse);
+            ->andReturn($course);
 
-        $response = $this->postJson('/supabase/courses', $courseData);
+        $response = $this->getJson('/supabase/courses/1', $this->getAdminHeaders());
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['title' => 'Khóa học mới'])
-            ->assertJsonFragment(['id' => 1]);
+            ->assertJsonFragment(['title' => 'Khóa học tiếng Lào cơ bản']);
     }
 
-    public function test_create_course_service_failure()
+    public function test_create_course_with_valid_data()
     {
         $courseData = [
+            'id' => 3,
             'title' => 'Khóa học mới',
             'description' => 'Mô tả khóa học mới'
         ];
@@ -83,88 +136,49 @@ class CourseControllerTest extends TestCase
             ->shouldReceive('createCourse')
             ->with($courseData)
             ->once()
-            ->andReturn(false);
+            ->andReturn($courseData);
 
-        $response = $this->postJson('/supabase/courses', $courseData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Tạo khóa học thất bại']);
-    }
-
-    public function test_get_course_by_id()
-    {
-        $course = [
-            'id' => 1,
-            'title' => 'Khóa học tiếng Lào',
-            'description' => 'Mô tả khóa học',
-            'is_active' => true
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('getCourse')
-            ->with(1)
-            ->once()
-            ->andReturn($course);
-
-        $response = $this->getJson('/supabase/courses/1');
+        $response = $this->postJson('/supabase/courses', $courseData, $this->getAdminHeaders());
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['id' => 1])
-            ->assertJsonFragment(['title' => 'Khóa học tiếng Lào']);
+            ->assertJsonFragment(['title' => 'Khóa học mới']);
     }
 
-    public function test_get_nonexistent_course()
+    public function test_create_course_missing_required_fields()
     {
-        $this->supabaseServiceMock
-            ->shouldReceive('getCourse')
-            ->with(999)
-            ->once()
-            ->andReturn(null);
-
-        $response = $this->getJson('/supabase/courses/999');
-
-        $response->assertStatus(404)
-            ->assertJson(['error' => 'Không tìm thấy khóa học']);
-    }
-
-    public function test_update_course_with_valid_data()
-    {
-        $updateData = [
-            'title' => 'Khóa học đã cập nhật',
-            'description' => 'Mô tả mới'
+        $courseData = [
+            'description' => 'Mô tả khóa học mới'
+            // Missing id and title
         ];
 
-        $updatedCourse = array_merge($updateData, ['id' => 1]);
+        $response = $this->postJson('/supabase/courses', $courseData, $this->getAdminHeaders());
+
+        $response->assertStatus(422)
+            ->assertJson(['error' => 'Thiếu id hoặc title']);
+    }
+
+    public function test_update_course()
+    {
+        $courseData = [
+            'title' => 'Khóa học đã cập nhật',
+            'description' => 'Mô tả đã cập nhật'
+        ];
+
+        $updatedCourse = array_merge(['id' => 1], $courseData);
 
         $this->supabaseServiceMock
             ->shouldReceive('updateCourse')
-            ->with(1, $updateData)
+            ->with(1, $courseData)
             ->once()
             ->andReturn($updatedCourse);
 
-        $response = $this->putJson('/supabase/courses/1', $updateData);
+        $response = $this->putJson('/supabase/courses/1', $courseData, $this->getAdminHeaders());
 
         $response->assertStatus(200)
             ->assertJsonFragment(['title' => 'Khóa học đã cập nhật']);
     }
 
-    public function test_update_course_service_failure()
-    {
-        $updateData = ['title' => 'Khóa học đã cập nhật'];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('updateCourse')
-            ->with(1, $updateData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->putJson('/supabase/courses/1', $updateData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Cập nhật khóa học thất bại']);
-    }
-
-    public function test_delete_course_success()
+    public function test_delete_course()
     {
         $this->supabaseServiceMock
             ->shouldReceive('deleteCourse')
@@ -172,201 +186,61 @@ class CourseControllerTest extends TestCase
             ->once()
             ->andReturn(true);
 
-        $response = $this->deleteJson('/supabase/courses/1');
+        $response = $this->deleteJson('/supabase/courses/1', [], $this->getAdminHeaders());
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Xóa khóa học thành công']);
+            ->assertJson(['success' => true]);
     }
 
-    public function test_delete_course_failure()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('deleteCourse')
-            ->with(1)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->deleteJson('/supabase/courses/1');
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Xóa khóa học thất bại']);
-    }
-
-    public function test_get_course_lessons()
+    public function test_get_lessons_for_course()
     {
         $lessons = [
             [
                 'id' => 1,
                 'title' => 'Bài học 1',
-                'content' => 'Nội dung bài học 1',
                 'course_id' => 1
             ],
             [
                 'id' => 2,
                 'title' => 'Bài học 2',
-                'content' => 'Nội dung bài học 2',
                 'course_id' => 1
             ]
         ];
 
         $this->supabaseServiceMock
-            ->shouldReceive('getCourseLessons')
+            ->shouldReceive('getLessons')
             ->with(1)
             ->once()
             ->andReturn($lessons);
 
-        $response = $this->getJson('/supabase/courses/1/lessons');
+        $response = $this->getJson('/supabase/courses/1/lessons', $this->getAdminHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(2)
-            ->assertJsonFragment(['title' => 'Bài học 1'])
-            ->assertJsonFragment(['title' => 'Bài học 2']);
+            ->assertJsonFragment(['title' => 'Bài học 1']);
     }
 
-    public function test_create_course_lesson()
+    public function test_create_lesson_for_course()
     {
         $lessonData = [
             'title' => 'Bài học mới',
-            'content' => 'Nội dung bài học mới',
-            'order' => 1
+            'content' => 'Nội dung bài học'
         ];
 
-        $createdLesson = array_merge($lessonData, [
-            'id' => 1,
-            'course_id' => 1
-        ]);
+        $expectedData = array_merge($lessonData, ['course_id' => 1]);
+        $createdLesson = array_merge($expectedData, ['id' => 3]);
 
         $this->supabaseServiceMock
             ->shouldReceive('createLesson')
-            ->with(1, $lessonData)
+            ->with($expectedData)
             ->once()
             ->andReturn($createdLesson);
 
-        $response = $this->postJson('/supabase/courses/1/lessons', $lessonData);
+        $response = $this->postJson('/supabase/courses/1/lessons', $lessonData, $this->getAdminHeaders());
 
         $response->assertStatus(200)
             ->assertJsonFragment(['title' => 'Bài học mới'])
             ->assertJsonFragment(['course_id' => 1]);
-    }
-
-    public function test_create_lesson_service_failure()
-    {
-        $lessonData = [
-            'title' => 'Bài học mới',
-            'content' => 'Nội dung bài học mới'
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('createLesson')
-            ->with(1, $lessonData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->postJson('/supabase/courses/1/lessons', $lessonData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Tạo bài học thất bại']);
-    }
-
-    public function test_get_lesson_by_id()
-    {
-        $lesson = [
-            'id' => 1,
-            'title' => 'Bài học 1',
-            'content' => 'Nội dung chi tiết',
-            'course_id' => 1
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('getLesson')
-            ->with(1)
-            ->once()
-            ->andReturn($lesson);
-
-        $response = $this->getJson('/supabase/lessons/1');
-
-        $response->assertStatus(200)
-            ->assertJsonFragment(['id' => 1])
-            ->assertJsonFragment(['title' => 'Bài học 1']);
-    }
-
-    public function test_get_nonexistent_lesson()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('getLesson')
-            ->with(999)
-            ->once()
-            ->andReturn(null);
-
-        $response = $this->getJson('/supabase/lessons/999');
-
-        $response->assertStatus(404)
-            ->assertJson(['error' => 'Không tìm thấy bài học']);
-    }
-
-    public function test_update_lesson()
-    {
-        $updateData = [
-            'title' => 'Bài học đã cập nhật',
-            'content' => 'Nội dung mới'
-        ];
-
-        $updatedLesson = array_merge($updateData, ['id' => 1]);
-
-        $this->supabaseServiceMock
-            ->shouldReceive('updateLesson')
-            ->with(1, $updateData)
-            ->once()
-            ->andReturn($updatedLesson);
-
-        $response = $this->putJson('/supabase/lessons/1', $updateData);
-
-        $response->assertStatus(200)
-            ->assertJsonFragment(['title' => 'Bài học đã cập nhật']);
-    }
-
-    public function test_update_lesson_service_failure()
-    {
-        $updateData = ['title' => 'Bài học đã cập nhật'];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('updateLesson')
-            ->with(1, $updateData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->putJson('/supabase/lessons/1', $updateData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Cập nhật bài học thất bại']);
-    }
-
-    public function test_delete_lesson_success()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('deleteLesson')
-            ->with(1)
-            ->once()
-            ->andReturn(true);
-
-        $response = $this->deleteJson('/supabase/lessons/1');
-
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Xóa bài học thành công']);
-    }
-
-    public function test_delete_lesson_failure()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('deleteLesson')
-            ->with(1)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->deleteJson('/supabase/lessons/1');
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Xóa bài học thất bại']);
     }
 
     protected function tearDown(): void

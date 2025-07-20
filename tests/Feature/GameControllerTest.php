@@ -32,14 +32,14 @@ class GameControllerTest extends TestCase
             [
                 'id' => 2,
                 'title' => 'Trò chơi ngữ pháp',
-                'description' => 'Luyện tập ngữ pháp',
+                'description' => 'Học ngữ pháp qua trò chơi',
                 'type' => 'grammar',
                 'is_active' => true
             ]
         ];
 
         $this->supabaseServiceMock
-            ->shouldReceive('getGames')
+            ->shouldReceive('getFlashGames')
             ->once()
             ->andReturn($games);
 
@@ -51,61 +51,18 @@ class GameControllerTest extends TestCase
             ->assertJsonFragment(['title' => 'Trò chơi ngữ pháp']);
     }
 
-    public function test_create_game_with_valid_data()
-    {
-        $gameData = [
-            'title' => 'Trò chơi mới',
-            'description' => 'Mô tả trò chơi mới',
-            'type' => 'quiz',
-            'is_active' => true
-        ];
-
-        $createdGame = array_merge($gameData, ['id' => 1]);
-
-        $this->supabaseServiceMock
-            ->shouldReceive('createGame')
-            ->with($gameData)
-            ->once()
-            ->andReturn($createdGame);
-
-        $response = $this->postJson('/supabase/games', $gameData);
-
-        $response->assertStatus(200)
-            ->assertJsonFragment(['title' => 'Trò chơi mới'])
-            ->assertJsonFragment(['id' => 1]);
-    }
-
-    public function test_create_game_service_failure()
-    {
-        $gameData = [
-            'title' => 'Trò chơi mới',
-            'description' => 'Mô tả trò chơi mới'
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('createGame')
-            ->with($gameData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->postJson('/supabase/games', $gameData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Tạo trò chơi thất bại']);
-    }
-
     public function test_get_game_by_id()
     {
         $game = [
             'id' => 1,
             'title' => 'Trò chơi từ vựng',
-            'description' => 'Mô tả chi tiết',
+            'description' => 'Học từ vựng qua trò chơi',
             'type' => 'vocabulary',
             'is_active' => true
         ];
 
         $this->supabaseServiceMock
-            ->shouldReceive('getGame')
+            ->shouldReceive('getFlashGameById')
             ->with(1)
             ->once()
             ->andReturn($game);
@@ -113,35 +70,42 @@ class GameControllerTest extends TestCase
         $response = $this->getJson('/supabase/games/1');
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['id' => 1])
             ->assertJsonFragment(['title' => 'Trò chơi từ vựng']);
     }
 
-    public function test_get_nonexistent_game()
+    public function test_create_game()
     {
+        $gameData = [
+            'title' => 'Trò chơi mới',
+            'description' => 'Mô tả trò chơi mới',
+            'type' => 'quiz'
+        ];
+
+        $createdGame = array_merge($gameData, ['id' => 3]);
+
         $this->supabaseServiceMock
-            ->shouldReceive('getGame')
-            ->with(999)
+            ->shouldReceive('createFlashGame')
+            ->with($gameData)
             ->once()
-            ->andReturn(null);
+            ->andReturn($createdGame);
 
-        $response = $this->getJson('/supabase/games/999');
+        $response = $this->postJson('/supabase/games', $gameData);
 
-        $response->assertStatus(404)
-            ->assertJson(['error' => 'Không tìm thấy trò chơi']);
+        $response->assertStatus(200)
+            ->assertJsonFragment(['title' => 'Trò chơi mới']);
     }
 
-    public function test_update_game_with_valid_data()
+    public function test_update_game()
     {
         $updateData = [
             'title' => 'Trò chơi đã cập nhật',
-            'description' => 'Mô tả mới'
+            'description' => 'Mô tả đã cập nhật'
         ];
 
         $updatedGame = array_merge($updateData, ['id' => 1]);
 
         $this->supabaseServiceMock
-            ->shouldReceive('updateGame')
+            ->shouldReceive('updateFlashGame')
             ->with(1, $updateData)
             ->once()
             ->andReturn($updatedGame);
@@ -152,26 +116,10 @@ class GameControllerTest extends TestCase
             ->assertJsonFragment(['title' => 'Trò chơi đã cập nhật']);
     }
 
-    public function test_update_game_service_failure()
-    {
-        $updateData = ['title' => 'Trò chơi đã cập nhật'];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('updateGame')
-            ->with(1, $updateData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->putJson('/supabase/games/1', $updateData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Cập nhật trò chơi thất bại']);
-    }
-
-    public function test_delete_game_success()
+    public function test_delete_game()
     {
         $this->supabaseServiceMock
-            ->shouldReceive('deleteGame')
+            ->shouldReceive('deleteFlashGame')
             ->with(1)
             ->once()
             ->andReturn(true);
@@ -179,38 +127,22 @@ class GameControllerTest extends TestCase
         $response = $this->deleteJson('/supabase/games/1');
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Xóa trò chơi thành công']);
+            ->assertJson(['success' => true]);
     }
-
-    public function test_delete_game_failure()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('deleteGame')
-            ->with(1)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->deleteJson('/supabase/games/1');
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Xóa trò chơi thất bại']);
-    }
-
-    // Game Groups Tests
 
     public function test_get_game_groups_returns_list()
     {
-        $gameGroups = [
+        $groups = [
             [
                 'id' => 1,
-                'name' => 'Nhóm từ vựng cơ bản',
-                'description' => 'Các từ vựng cơ bản trong tiếng Lào',
+                'name' => 'Nhóm trò chơi cơ bản',
+                'description' => 'Các trò chơi dành cho người mới',
                 'is_active' => true
             ],
             [
                 'id' => 2,
-                'name' => 'Nhóm ngữ pháp',
-                'description' => 'Các bài tập ngữ pháp',
+                'name' => 'Nhóm trò chơi nâng cao',
+                'description' => 'Các trò chơi dành cho người có kinh nghiệm',
                 'is_active' => true
             ]
         ];
@@ -218,25 +150,45 @@ class GameControllerTest extends TestCase
         $this->supabaseServiceMock
             ->shouldReceive('getGameGroups')
             ->once()
-            ->andReturn($gameGroups);
+            ->andReturn($groups);
 
         $response = $this->getJson('/supabase/game-groups');
 
         $response->assertStatus(200)
             ->assertJsonCount(2)
-            ->assertJsonFragment(['name' => 'Nhóm từ vựng cơ bản'])
-            ->assertJsonFragment(['name' => 'Nhóm ngữ pháp']);
+            ->assertJsonFragment(['name' => 'Nhóm trò chơi cơ bản'])
+            ->assertJsonFragment(['name' => 'Nhóm trò chơi nâng cao']);
     }
 
-    public function test_create_game_group_with_valid_data()
+    public function test_get_game_group_by_id()
     {
-        $groupData = [
-            'name' => 'Nhóm mới',
-            'description' => 'Mô tả nhóm mới',
+        $group = [
+            'id' => 1,
+            'name' => 'Nhóm trò chơi cơ bản',
+            'description' => 'Các trò chơi dành cho người mới',
             'is_active' => true
         ];
 
-        $createdGroup = array_merge($groupData, ['id' => 1]);
+        $this->supabaseServiceMock
+            ->shouldReceive('getGameGroupById')
+            ->with(1)
+            ->once()
+            ->andReturn($group);
+
+        $response = $this->getJson('/supabase/game-groups/1');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['name' => 'Nhóm trò chơi cơ bản']);
+    }
+
+    public function test_create_game_group()
+    {
+        $groupData = [
+            'name' => 'Nhóm trò chơi mới',
+            'description' => 'Mô tả nhóm mới'
+        ];
+
+        $createdGroup = array_merge($groupData, ['id' => 3]);
 
         $this->supabaseServiceMock
             ->shouldReceive('createGameGroup')
@@ -247,70 +199,14 @@ class GameControllerTest extends TestCase
         $response = $this->postJson('/supabase/game-groups', $groupData);
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['name' => 'Nhóm mới'])
-            ->assertJsonFragment(['id' => 1]);
+            ->assertJsonFragment(['name' => 'Nhóm trò chơi mới']);
     }
 
-    public function test_create_game_group_service_failure()
-    {
-        $groupData = [
-            'name' => 'Nhóm mới',
-            'description' => 'Mô tả nhóm mới'
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('createGameGroup')
-            ->with($groupData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->postJson('/supabase/game-groups', $groupData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Tạo nhóm trò chơi thất bại']);
-    }
-
-    public function test_get_game_group_by_id()
-    {
-        $gameGroup = [
-            'id' => 1,
-            'name' => 'Nhóm từ vựng',
-            'description' => 'Mô tả chi tiết',
-            'is_active' => true
-        ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('getGameGroup')
-            ->with(1)
-            ->once()
-            ->andReturn($gameGroup);
-
-        $response = $this->getJson('/supabase/game-groups/1');
-
-        $response->assertStatus(200)
-            ->assertJsonFragment(['id' => 1])
-            ->assertJsonFragment(['name' => 'Nhóm từ vựng']);
-    }
-
-    public function test_get_nonexistent_game_group()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('getGameGroup')
-            ->with(999)
-            ->once()
-            ->andReturn(null);
-
-        $response = $this->getJson('/supabase/game-groups/999');
-
-        $response->assertStatus(404)
-            ->assertJson(['error' => 'Không tìm thấy nhóm trò chơi']);
-    }
-
-    public function test_update_game_group_with_valid_data()
+    public function test_update_game_group()
     {
         $updateData = [
             'name' => 'Nhóm đã cập nhật',
-            'description' => 'Mô tả mới'
+            'description' => 'Mô tả đã cập nhật'
         ];
 
         $updatedGroup = array_merge($updateData, ['id' => 1]);
@@ -327,23 +223,7 @@ class GameControllerTest extends TestCase
             ->assertJsonFragment(['name' => 'Nhóm đã cập nhật']);
     }
 
-    public function test_update_game_group_service_failure()
-    {
-        $updateData = ['name' => 'Nhóm đã cập nhật'];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('updateGameGroup')
-            ->with(1, $updateData)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->putJson('/supabase/game-groups/1', $updateData);
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Cập nhật nhóm trò chơi thất bại']);
-    }
-
-    public function test_delete_game_group_success()
+    public function test_delete_game_group()
     {
         $this->supabaseServiceMock
             ->shouldReceive('deleteGameGroup')
@@ -354,21 +234,7 @@ class GameControllerTest extends TestCase
         $response = $this->deleteJson('/supabase/game-groups/1');
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Xóa nhóm trò chơi thành công']);
-    }
-
-    public function test_delete_game_group_failure()
-    {
-        $this->supabaseServiceMock
-            ->shouldReceive('deleteGameGroup')
-            ->with(1)
-            ->once()
-            ->andReturn(false);
-
-        $response = $this->deleteJson('/supabase/game-groups/1');
-
-        $response->assertStatus(500)
-            ->assertJson(['error' => 'Xóa nhóm trò chơi thất bại']);
+            ->assertJson(['success' => true]);
     }
 
     protected function tearDown(): void

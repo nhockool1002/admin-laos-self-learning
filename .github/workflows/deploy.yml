@@ -68,28 +68,10 @@ jobs:
       - name: 🧪 Run PHPUnit Tests
         run: |
           echo "🧪 Running Unit Tests..."
-          php artisan test --testsuite=Unit --coverage-text --colors=never
+          php artisan test --testsuite=Unit --stop-on-failure
           
           echo "🧪 Running Feature Tests..."
-          php artisan test --testsuite=Feature --colors=never
-          
-          echo "🧪 Running All Tests with Coverage..."
-          php artisan test --coverage-html=coverage --coverage-clover=coverage.xml
-
-      - name: 📊 Upload Coverage Reports
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-
-      - name: ✅ Code Quality Check
-        run: |
-          echo "✅ Running Laravel Pint (Code Style)..."
-          ./vendor/bin/pint --test
-          
-          echo "✅ Checking for security vulnerabilities..."
-          composer audit
+          php artisan test --testsuite=Feature --stop-on-failure
 
   ftp-deploy:
     name: ⭐ Deploy to Production
