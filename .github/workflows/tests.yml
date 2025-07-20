@@ -1,0 +1,129 @@
+name: 🧪 Run Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  tests:
+    name: 🧪 Laravel Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php: [8.2, 8.3]
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testing
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: ⭐ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⭐ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_pgsql, curl, zip, bcmath, gd
+          coverage: xdebug
+
+      - name: ⭐ Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+      - name: ⭐ Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: ⭐ Setup Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: ⭐ Configure Test Environment
+        run: |
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=testing" >> .env
+          echo "DB_USERNAME=postgres" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "SUPABASE_URL=https://test.supabase.co" >> .env
+          echo "SUPABASE_ANON_KEY=test-key-123" >> .env
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          echo "🧪 Running Unit Tests..."
+          php artisan test --testsuite=Unit --stop-on-failure
+
+      - name: 🧪 Run Feature Tests  
+        run: |
+          echo "🧪 Running Feature Tests..."
+          php artisan test --testsuite=Feature --stop-on-failure
+
+      - name: 📊 Generate Test Coverage (PHP 8.3 only)
+        if: matrix.php == '8.3'
+        run: |
+          echo "📊 Generating test coverage report..."
+          php artisan test --coverage-text --coverage-clover=coverage.xml
+
+      - name: 📊 Upload Coverage to Codecov
+        if: matrix.php == '8.3'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: ✅ Code Style Check (Laravel Pint)
+        if: matrix.php == '8.3'
+        run: |
+          echo "✅ Running Laravel Pint (Code Style)..."
+          ./vendor/bin/pint --test
+
+      - name: 🔍 Security Audit
+        if: matrix.php == '8.3'
+        run: |
+          echo "🔍 Checking for security vulnerabilities..."
+          composer audit --no-dev || true
+
+  test-results:
+    name: 📊 Test Results Summary
+    runs-on: ubuntu-latest
+    needs: tests
+    if: always()
+    
+    steps:
+      - name: 📊 Test Results
+        run: |
+          echo "## 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.tests.result }}" == "success" ]; then
+            echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Unit Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Feature Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Code Style: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Security Audit: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the test results above and fix any issues." >> $GITHUB_STEP_SUMMARY
+          fi

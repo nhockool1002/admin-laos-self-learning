@@ -4,11 +4,98 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  ftp-deploy:
-    name: ⭐ Upload to aaPanel FTP
+  tests:
+    name: 🧪 Run Tests
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testing
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: ⭐ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⭐ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_pgsql, curl, zip, bcmath, gd
+          coverage: xdebug
+
+      - name: ⭐ Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: ⭐ Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: ⭐ Setup Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: ⭐ Configure Test Environment
+        run: |
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=testing" >> .env
+          echo "DB_USERNAME=postgres" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "SUPABASE_URL=https://test.supabase.co" >> .env
+          echo "SUPABASE_ANON_KEY=test-key-123" >> .env
+
+      - name: 🧪 Run PHPUnit Tests
+        run: |
+          echo "🧪 Running Unit Tests..."
+          php artisan test --testsuite=Unit --coverage-text --colors=never
+          
+          echo "🧪 Running Feature Tests..."
+          php artisan test --testsuite=Feature --colors=never
+          
+          echo "🧪 Running All Tests with Coverage..."
+          php artisan test --coverage-html=coverage --coverage-clover=coverage.xml
+
+      - name: 📊 Upload Coverage Reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: ✅ Code Quality Check
+        run: |
+          echo "✅ Running Laravel Pint (Code Style)..."
+          ./vendor/bin/pint --test
+          
+          echo "✅ Checking for security vulnerabilities..."
+          composer audit
+
+  ftp-deploy:
+    name: ⭐ Deploy to Production
+    runs-on: ubuntu-latest
+    needs: tests
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       - name: ⭐ Checkout Repository
@@ -19,8 +106,15 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: ⭐ Install Composer dependencies (optional)
-        run: composer install --no-dev --prefer-dist --no-interaction
+      - name: ⭐ Install Composer dependencies (Production)
+        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+      - name: ⭐ Build Assets (if needed)
+        run: |
+          if [ -f "package.json" ]; then
+            npm install
+            npm run build
+          fi
 
       - name: ⭐ Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -34,6 +128,25 @@ jobs:
           exclude: |
             **/.git*
             **/node_modules/**
-            **/vendor/**
-            .env
-            storage/*
+            **/tests/**
+            **/coverage/**
+            **/.github/**
+            .env.example
+            .env.testing
+            phpunit.xml
+            .editorconfig
+            .gitattributes
+            .gitignore
+            README.md
+            storage/logs/*
+            storage/framework/cache/*
+            storage/framework/sessions/*
+            storage/framework/testing/*
+            storage/framework/views/*
+
+      - name: 🎉 Deployment Success Notification
+        if: success()
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "✅ All tests passed"
+          echo "✅ Code deployed to production"
