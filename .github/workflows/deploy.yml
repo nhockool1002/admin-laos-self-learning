@@ -98,6 +98,19 @@ jobs:
             npm run build
           fi
 
+      - name: ⭐ Setup Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=testing" >> .env
+          echo "DB_USERNAME=postgres" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "SUPABASE_URL=https://test.supabase.co" >> .env
+          echo "SUPABASE_ANON_KEY=test-key-123" >> .env
+
       - name: 📊 Generate Coverage Report
         run: ./vendor/bin/phpunit --coverage-html=public/coverage
 
