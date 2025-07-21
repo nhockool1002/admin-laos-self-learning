@@ -166,3 +166,8 @@ jobs:
           script: |
             cd /www/wwwroot/admin.tienglao.io.vn
             composer install
+            php artisan cache:clear
+            php artisan view:clear
+            php artisan config:clear
+            php artisan config:cache
+            php artisan route:cache
