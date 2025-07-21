@@ -234,9 +234,41 @@ requests.post(f"{base_url}/api/v1/badges/revoke",
 ### Debug Mode
 Enable debug logging trong SupabaseService để theo dõi API calls.
 
+## 🧪 Testing
+
+Badge Management System đi kèm với test suite đầy đủ:
+
+### Test Coverage
+- ✅ **65+ test cases** bao phủ tất cả chức năng
+- ✅ **Unit Tests**: Controller và Service layer
+- ✅ **Feature Tests**: Integration testing
+- ✅ **API Tests**: Third-party integration
+- ✅ **Security Tests**: Authentication và authorization
+
+### Running Tests
+```bash
+# Run all badge tests
+php artisan test --filter=Badge
+
+# Run specific test files
+php artisan test tests/Unit/BadgeControllerTest.php
+php artisan test tests/Feature/BadgeManagementTest.php
+
+# Run with coverage
+php artisan test --coverage --filter=Badge
+```
+
+### Test Files
+- `tests/Unit/BadgeControllerTest.php` - Controller tests
+- `tests/Unit/SupabaseBadgeServiceTest.php` - Service tests
+- `tests/Feature/BadgeManagementTest.php` - Integration tests
+- `tests/Unit/BadgeTestSuite.php` - Complete test suite
+- `BADGE_TESTING_GUIDE.md` - Testing documentation
+
 ## 📞 Support
 
 Xem thêm tài liệu:
 - `public/api-documentation.md` - API documentation
 - `database-schema.sql` - Database schema
+- `BADGE_TESTING_GUIDE.md` - Testing guide
 - Laravel documentation cho configuration
