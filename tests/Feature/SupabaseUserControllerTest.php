@@ -33,18 +33,14 @@ class SupabaseUserControllerTest extends TestCase
 
     public function test_get_users_with_valid_token()
     {
-        $users = [
-            $this->createMockUser(['id' => 1, 'username' => 'user1']),
-            $this->createMockUser(['id' => 2, 'username' => 'user2'])
+        $mockUsers = [
+            ['username' => 'user1', 'email' => 'user1@test.com', 'id' => 1, 'is_admin' => false],
+            ['username' => 'user2', 'email' => 'user2@test.com', 'id' => 2, 'is_admin' => false],
         ];
-
-        $this->supabaseServiceMock
-            ->shouldReceive('getUsers')
-            ->once()
-            ->andReturn($users);
-
+        $mock = \Mockery::mock(\App\Services\SupabaseService::class)->makePartial();
+        $mock->shouldReceive('getUsers')->andReturn($mockUsers);
+        $this->app->instance(\App\Services\SupabaseService::class, $mock);
         $response = $this->getJson('/supabase/users', $this->getAuthHeaders());
-
         $response->assertStatus(200)
             ->assertJsonCount(2)
             ->assertJsonFragment(['username' => 'user1'])

@@ -462,4 +462,134 @@ class SupabaseService
         $this->logResponse('FlashGames', $response, "DELETE /flash_games for id '{$id}' completed");
         return $response->successful();
     }
+
+    // ================= BADGES =================
+    public function getBadges($params = [])
+    {
+        $this->logRequest('Badges', 'GET', '/badges_system', $params);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/badges_system', $params);
+        $this->logResponse('Badges', $response, 'GET /badges_system completed');
+        return $response->successful() ? $response->json() : null;
+    }
+
+    public function getBadgeById($id)
+    {
+        $params = [
+            'id' => 'eq.' . $id,
+            'select' => '*',
+        ];
+        $this->logRequest('Badges', 'GET', '/badges_system', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/badges_system', $params);
+        $data = $response->successful() ? $response->json() : null;
+        $this->logResponse('Badges', $response, "GET /badges_system by id '{$id}' completed");
+        return $data[0] ?? null;
+    }
+
+    public function createBadge($data)
+    {
+        $this->logRequest('Badges', 'POST', '/badges_system', [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->post($this->baseUrl . '/badges_system', $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('Badges', $response, 'POST /badges_system completed');
+        return $result;
+    }
+
+    public function updateBadge($id, $data)
+    {
+        $this->logRequest('Badges', 'PATCH', "/badges_system?id=eq.{$id}", [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->patch($this->baseUrl . '/badges_system?id=eq.' . $id, $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('Badges', $response, "PATCH /badges_system for id '{$id}' completed");
+        return $result;
+    }
+
+    public function deleteBadge($id)
+    {
+        $this->logRequest('Badges', 'DELETE', "/badges_system?id=eq.{$id}", [], null);
+        $response = Http::withHeaders($this->headers([
+            'Prefer' => 'return=representation',
+        ]))->delete($this->baseUrl . '/badges_system?id=eq.' . $id);
+        $this->logResponse('Badges', $response, "DELETE /badges_system for id '{$id}' completed");
+        return $response->successful();
+    }
+
+    // ================= USER BADGES =================
+    public function getUserBadges($params = [])
+    {
+        $this->logRequest('UserBadges', 'GET', '/user_badges', $params);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/user_badges', $params);
+        $this->logResponse('UserBadges', $response, 'GET /user_badges completed');
+        return $response->successful() ? $response->json() : null;
+    }
+
+    public function getUserBadgesByUsername($username)
+    {
+        $params = [
+            'username' => 'eq.' . $username,
+            'select' => '*, badges_system(*)',
+        ];
+        $this->logRequest('UserBadges', 'GET', '/user_badges', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/user_badges', $params);
+        $this->logResponse('UserBadges', $response, "GET /user_badges for username '{$username}' completed");
+        return $response->successful() ? $response->json() : null;
+    }
+
+    // Keep the old method for backward compatibility
+    public function getUserBadgesByUserId($userId)
+    {
+        // For compatibility, assume userId is actually username in the new schema
+        return $this->getUserBadgesByUsername($userId);
+    }
+
+    public function checkUserBadgeExists($username, $badgeId)
+    {
+        $params = [
+            'username' => 'eq.' . $username,
+            'badge_id' => 'eq.' . $badgeId,
+            'select' => 'id',
+        ];
+        $this->logRequest('UserBadges', 'GET', '/user_badges', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/user_badges', $params);
+        $data = $response->successful() ? $response->json() : null;
+        $this->logResponse('UserBadges', $response, "Check user badge exists for username '{$username}' and badge_id '{$badgeId}' completed");
+        return !empty($data);
+    }
+
+    public function awardUserBadge($data)
+    {
+        $this->logRequest('UserBadges', 'POST', '/user_badges', [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->post($this->baseUrl . '/user_badges', $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('UserBadges', $response, 'POST /user_badges completed');
+        return $result;
+    }
+
+    public function revokeUserBadge($username, $badgeId)
+    {
+        $this->logRequest('UserBadges', 'DELETE', "/user_badges?username=eq.{$username}&badge_id=eq.{$badgeId}", [], null);
+        $response = Http::withHeaders($this->headers([
+            'Prefer' => 'return=representation',
+        ]))->delete($this->baseUrl . '/user_badges?username=eq.' . $username . '&badge_id=eq.' . $badgeId);
+        $this->logResponse('UserBadges', $response, "DELETE /user_badges for username '{$username}' and badge_id '{$badgeId}' completed");
+        return $response->successful();
+    }
+
+    public function getUsersWithBadgeDetails($params = [])
+    {
+        $baseParams = ['select' => '*, user_badges(*, badges_system(*))'];
+        $allParams = array_merge($baseParams, $params);
+        $this->logRequest('Users', 'GET', '/users with badges', $allParams);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/users', $allParams);
+        $this->logResponse('Users', $response, 'GET /users with badge details completed');
+        return $response->successful() ? $response->json() : null;
+    }
 }

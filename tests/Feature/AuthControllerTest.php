@@ -34,11 +34,12 @@ class AuthControllerTest extends TestCase
 
     public function test_login_with_valid_email_credentials()
     {
-        $user = $this->createMockUser([
+        $user = [
             'email' => 'admin@example.com',
+            'username' => 'admin',
             'password' => md5('password123'),
             'is_admin' => true
-        ]);
+        ];
 
         $this->supabaseServiceMock
             ->shouldReceive('getUserByEmail')
@@ -68,11 +69,12 @@ class AuthControllerTest extends TestCase
 
     public function test_login_with_valid_username_credentials()
     {
-        $user = $this->createMockUser([
+        $user = [
             'username' => 'admin',
+            'email' => 'admin@example.com',
             'password' => md5('password123'),
             'is_admin' => true
-        ]);
+        ];
 
         // For username (non-email), it only calls getUserByUsername
         $this->supabaseServiceMock
@@ -143,11 +145,12 @@ class AuthControllerTest extends TestCase
 
     public function test_login_with_wrong_password()
     {
-        $user = $this->createMockUser([
+        $user = [
             'email' => 'admin@example.com',
-            'password' => md5('correct_password'),
+            'username' => 'admin',
+            'password' => md5('correct_password'), // đúng password là 'correct_password'
             'is_admin' => true
-        ]);
+        ];
 
         $this->supabaseServiceMock
             ->shouldReceive('getUserByEmail')
