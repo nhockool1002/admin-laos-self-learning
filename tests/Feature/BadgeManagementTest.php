@@ -49,7 +49,7 @@ class BadgeManagementTest extends TestCase
     /**
      * Create non-admin authentication headers
      */
-    private function userHeaders(): array
+    protected function userHeaders(): array
     {
         $user = [
             'id' => 2,
