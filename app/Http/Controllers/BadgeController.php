@@ -15,19 +15,12 @@ class BadgeController extends Controller
         $this->supabaseService = $supabaseService;
     }
 
-    // Middleware kiểm tra quyền admin
-    protected function checkAdmin(Request $request)
-    {
-        $user = $request->header('User');
-        if (!$user) return false;
-        $user = json_decode($user, true);
-        return $user && !empty($user['is_admin']);
-    }
-
     // Lấy danh sách huy hiệu
     public function index(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        // Kiểm tra authentication giống SupabaseUserController
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $badges = $this->supabaseService->getBadges($request->all());
@@ -37,7 +30,8 @@ class BadgeController extends Controller
     // Lấy chi tiết huy hiệu
     public function show(Request $request, $id)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $badge = $this->supabaseService->getBadgeById($id);
@@ -47,7 +41,8 @@ class BadgeController extends Controller
     // Tạo huy hiệu mới
     public function store(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -61,8 +56,8 @@ class BadgeController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('assets/images'), $imageName);
-            $imagePath = '/assets/images/' . $imageName;
+            $image->move(public_path('badges'), $imageName);
+            $imagePath = '/badges/' . $imageName;
         } else {
             return response()->json(['error' => 'Thiếu hình ảnh huy hiệu'], 422);
         }
@@ -89,7 +84,8 @@ class BadgeController extends Controller
     // Cập nhật huy hiệu
     public function update(Request $request, $id)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -125,13 +121,11 @@ class BadgeController extends Controller
         if ($request->hasFile('image')) {
             // Lấy thông tin badge cũ để xóa hình ảnh cũ
             $oldBadge = $this->supabaseService->getBadgeById($id);
-            
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('assets/images'), $imageName);
-            $imagePath = '/assets/images/' . $imageName;
+            $image->move(public_path('badges'), $imageName);
+            $imagePath = '/badges/' . $imageName;
             $data['image_path'] = $imagePath;
-
             // Xóa hình ảnh cũ nếu tồn tại
             if ($oldBadge && !empty($oldBadge['image_path'])) {
                 $oldImagePath = public_path($oldBadge['image_path']);
@@ -148,7 +142,8 @@ class BadgeController extends Controller
     // Xóa huy hiệu
     public function destroy(Request $request, $id)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -171,7 +166,8 @@ class BadgeController extends Controller
     // Lấy danh sách user badge
     public function getUserBadges(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $userBadges = $this->supabaseService->getUserBadges($request->all());
@@ -181,7 +177,8 @@ class BadgeController extends Controller
     // Lấy danh sách badge của một user
     public function getUserBadgesByUserId(Request $request, $userId)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $userBadges = $this->supabaseService->getUserBadgesByUserId($userId);
@@ -191,7 +188,8 @@ class BadgeController extends Controller
     // Tặng huy hiệu cho user
     public function awardBadge(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -225,7 +223,8 @@ class BadgeController extends Controller
     // Thu hồi huy hiệu từ user
     public function revokeBadge(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -244,7 +243,8 @@ class BadgeController extends Controller
     // Lấy danh sách users với thông tin badge
     public function getUsersWithBadges(Request $request)
     {
-        if (!$this->checkAdmin($request)) {
+        $token = $request->header('Authorization');
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $users = $this->supabaseService->getUsersWithBadgeDetails($request->all());

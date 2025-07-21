@@ -9,9 +9,6 @@
     <div class="flex-1 flex flex-col min-h-screen">
         <x-header title="Quản lý Huy hiệu">
             <x-slot name="right">
-                <button id="add-badge-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-6 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-sm">
-                    <i class="fa-solid fa-plus mr-2"></i>Thêm Huy hiệu
-                </button>
                 <button id="logout-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-8 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-lg ml-2">Đăng xuất</button>
             </x-slot>
         </x-header>
@@ -33,8 +30,14 @@
             <div class="bg-[#232946] rounded-2xl shadow-xl p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-purple-200">Danh sách Huy hiệu</h2>
-                    <div class="text-sm text-purple-100">
-                        Tổng: <span id="total-badges" class="text-purple-300 font-semibold">0</span> huy hiệu
+                    <div class="flex items-center gap-2">
+                        <div class="text-sm text-purple-100 mr-4">
+                            Tổng: <span id="total-badges" class="text-purple-300 font-semibold">0</span> huy hiệu
+                        </div>
+                        <!-- Nút Thêm Huy hiệu trong table -->
+                        <button id="add-badge-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-6 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-sm">
+                            <i class="fa-solid fa-plus mr-2"></i>Thêm Huy hiệu
+                        </button>
                     </div>
                 </div>
                 
@@ -151,7 +154,8 @@
                 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-purple-200 mb-2">Tên người dùng *</label>
-                    <input type="text" id="username-input" name="username" required class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none" placeholder="Nhập username">
+                    <input type="text" id="username-input" name="username" required list="user-list" class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none" placeholder="Nhập username">
+                    <datalist id="user-list"></datalist>
                 </div>
                 
                 <div class="flex gap-3">
@@ -194,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Add badge button
+    // Add badge button (đảm bảo gán lại sự kiện)
     document.getElementById('add-badge-btn').addEventListener('click', function() {
         openBadgeModal();
     });
@@ -233,16 +237,10 @@ function setupEventListeners() {
 async function loadBadges() {
     try {
         showLoading();
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
         const response = await fetch('/supabase/badges', {
             headers: {
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token
             }
         });
 
@@ -262,19 +260,17 @@ async function loadBadges() {
 
 async function loadUsers() {
     try {
-        const user = getStoredUser();
-        if (!user) return;
-
+        const token = sessionStorage.getItem('access_token');
         const response = await fetch('/supabase/users', {
             headers: {
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token
             }
         });
 
         if (response.ok) {
             users = await response.json() || [];
             populateUserSelect();
+            renderUserDatalist(); // render datalist autocomplete
         }
     } catch (error) {
         console.error('Error loading users:', error);
@@ -326,16 +322,16 @@ function renderBadges(badgesToRender) {
             </td>
             <td class="py-4 px-4">
                 <div class="flex items-center justify-center gap-2">
-                    <button onclick="editBadge(${badge.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Chỉnh sửa">
+                    <button onclick="editBadge('${badge.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Chỉnh sửa">
                         <i class="fa-solid fa-edit"></i>
                     </button>
-                    <button onclick="openAwardModal(${badge.id})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Tặng huy hiệu">
-                        <i class="fa-solid fa-gift"></i>
+                    <button onclick="openAwardModal('${badge.id}')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Tặng huy hiệu">
+                        <i class="fa-solid fa-medal"></i>
                     </button>
-                    <button onclick="manageUserBadges(${badge.id})" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Quản lý người dùng">
+                    <button onclick="manageUserBadges('${badge.id}')" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Quản lý người dùng">
                         <i class="fa-solid fa-users"></i>
                     </button>
-                    <button onclick="deleteBadge(${badge.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Xóa">
+                    <button onclick="deleteBadge('${badge.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition text-sm" title="Xóa">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -394,6 +390,7 @@ function closeBadgeModal() {
 
 function openAwardModal(badgeId) {
     document.getElementById('award-badge-id').value = badgeId;
+    renderUserDatalist(); // render lại mỗi lần mở modal
     document.getElementById('award-modal').classList.remove('hidden');
 }
 
@@ -408,84 +405,66 @@ function closeUserBadgesModal() {
 
 async function handleBadgeSubmit(e) {
     e.preventDefault();
-    
     try {
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const formData = new FormData(e.target);
         const url = isEditing ? `/supabase/badges/${document.getElementById('badge-id').value}` : '/supabase/badges';
         const method = isEditing ? 'PUT' : 'POST';
-        
-        // For PUT requests, we need to handle FormData differently
         if (isEditing) {
-            // Convert FormData to JSON for PUT request
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'badge_id' && value) {
-                    data[key] = value;
-                }
-            }
-            
-            // Handle file upload for edit separately if image is provided
             if (formData.get('image') && formData.get('image').size > 0) {
-                // Create a new FormData for the file upload
                 const fileFormData = new FormData();
                 fileFormData.append('image', formData.get('image'));
                 fileFormData.append('name', formData.get('name'));
                 fileFormData.append('description', formData.get('description'));
-                
                 const response = await fetch(url, {
-                    method: 'POST', // Use POST for file uploads with FormData
+                    method: 'POST',
                     headers: {
-                        'User': JSON.stringify(user),
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-HTTP-Method-Override': 'PUT'
+                        'Authorization': token,
+                        'X-HTTP-Method-Override': 'PUT',
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: fileFormData
                 });
-                
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Failed to update badge');
                 }
             } else {
-                // No file, send JSON data
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    if (key !== 'badge_id' && value) {
+                        data[key] = value;
+                    }
+                }
                 const response = await fetch(url, {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
-                        'User': JSON.stringify(user),
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'Authorization': token,
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify(data)
                 });
-                
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Failed to update badge');
                 }
             }
         } else {
-            // For POST, use FormData directly
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'User': JSON.stringify(user),
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'Authorization': token,
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: formData
             });
-            
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.error || 'Failed to create badge');
             }
         }
-
         showSuccessMessage(isEditing ? 'Cập nhật huy hiệu thành công!' : 'Tạo huy hiệu thành công!');
         closeBadgeModal();
         loadBadges();
@@ -497,14 +476,9 @@ async function handleBadgeSubmit(e) {
 
 async function handleAwardSubmit(e) {
     e.preventDefault();
-    
     try {
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const formData = new FormData(e.target);
         const data = {
             username: formData.get('username'),
@@ -515,8 +489,8 @@ async function handleAwardSubmit(e) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token,
+                'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify(data)
         });
@@ -562,19 +536,14 @@ async function deleteBadge(id) {
     if (!confirm('Bạn có chắc chắn muốn xóa huy hiệu này? Thao tác này không thể hoàn tác.')) {
         return;
     }
-    
     try {
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const response = await fetch(`/supabase/badges/${id}`, {
             method: 'DELETE',
             headers: {
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token,
+                'X-CSRF-TOKEN': csrfToken
             }
         });
 
@@ -592,16 +561,10 @@ async function deleteBadge(id) {
 
 async function manageUserBadges(badgeId) {
     try {
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
         const response = await fetch('/supabase/users-with-badges', {
             headers: {
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token
             }
         });
 
@@ -672,18 +635,14 @@ async function revokeBadge(username, badgeId) {
     }
     
     try {
-        const user = getStoredUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
+        const token = sessionStorage.getItem('access_token');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const response = await fetch('/supabase/user-badges/revoke', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'User': JSON.stringify(user),
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'Authorization': token,
+                'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify({
                 username: username,
@@ -726,11 +685,7 @@ function formatDate(dateString) {
     });
 }
 
-function getStoredUser() {
-    const userData = sessionStorage.getItem('user_data');
-    return userData ? JSON.parse(userData) : null;
-}
-
+// Xóa hàm getStoredUser vì không còn sử dụng nữa
 function showSuccessMessage(message) {
     // Simple alert for now - can be replaced with a toast notification
     alert(message);
@@ -739,6 +694,12 @@ function showSuccessMessage(message) {
 function showErrorMessage(message) {
     // Simple alert for now - can be replaced with a toast notification
     alert('Lỗi: ' + message);
+}
+
+function renderUserDatalist() {
+    const datalist = document.getElementById('user-list');
+    if (!datalist) return;
+    datalist.innerHTML = users.map(u => `<option value="${u.username}">${u.email}</option>`).join('');
 }
 </script>
 
