@@ -74,7 +74,7 @@ jobs:
           php artisan test --testsuite=Feature --stop-on-failure
 
       - name: 📊 Generate Coverage Report
-        run: php artisan test --coverage-html=coverage
+        run: php artisan test --coverage-html=public/coverage
 
       - name: 📤 Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -120,7 +120,6 @@ jobs:
             **/.git*
             **/node_modules/**
             **/tests/**
-            **/coverage/**
             **/.github/**
             .env.example
             .env.testing
