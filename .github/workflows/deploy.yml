@@ -107,6 +107,9 @@ jobs:
             npm run build
           fi
 
+      - name: 📊 Generate Coverage Report
+        run: php artisan test --coverage-html=public/coverage
+
       - name: ⭐ Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
