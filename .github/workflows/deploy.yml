@@ -149,3 +149,20 @@ jobs:
           echo "🎉 Deployment completed successfully!"
           echo "✅ All tests passed"
           echo "✅ Code deployed to production"
+
+  ssh-deploy:
+    name: 🚀 SSH Deploy & Composer Install
+    runs-on: ubuntu-latest
+    needs: ftp-deploy
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: SSH to server and composer install
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 107.174.156.33
+          username: root
+          password: ${{ secrets.ROOTPWD }}
+          script: |
+            cd /www/wwwroot/admin.tienglao.io.vn
+            composer install --no-dev --optimize-autoloader
