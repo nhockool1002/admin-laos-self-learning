@@ -90,3 +90,10 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/badges/award', [BadgeController::class, 'apiAwardBadge']);
     Route::post('/badges/revoke', [BadgeController::class, 'apiRevokeBadge']);
 });
+
+// Route xem coverage report (chỉ nên dùng cho dev)
+Route::get('/coverage/{file?}', function ($file = null) {
+    $path = public_path('coverage/' . ($file ?: 'index.html'));
+    if (!file_exists($path)) abort(404);
+    return response()->file($path);
+})->where('file', '.*');

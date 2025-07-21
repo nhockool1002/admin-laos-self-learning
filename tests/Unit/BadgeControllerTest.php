@@ -60,8 +60,16 @@ class BadgeControllerTest extends TestCase
         return new Request($data);
     }
 
+    // Thêm hàm tạo request có xác thực token
+    protected function createAuthRequest(array $data = [], $method = 'GET', $uri = '/supabase/badges')
+    {
+        $request = Request::create($uri, $method, $data);
+        $request->headers->set('Authorization', 'test-token');
+        return $request;
+    }
+
     // Test Authorization
-    public function test_index_requires_admin_authorization()
+    public function test_index_requires_authentication()
     {
         $request = $this->createNonAdminRequest();
         $response = $this->badgeController->index($request);
@@ -95,7 +103,7 @@ class BadgeControllerTest extends TestCase
             ->with([])
             ->andReturn($mockBadges);
 
-        $request = $this->createAdminRequest();
+        $request = $this->createAuthRequest();
         $response = $this->badgeController->index($request);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
@@ -116,7 +124,7 @@ class BadgeControllerTest extends TestCase
             ->with(1)
             ->andReturn($mockBadge);
 
-        $request = $this->createAdminRequest();
+        $request = $this->createAuthRequest();
         $response = $this->badgeController->show($request, 1);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -124,7 +132,7 @@ class BadgeControllerTest extends TestCase
         $this->assertEquals($mockBadge, $data);
     }
 
-    public function test_show_requires_admin_authorization()
+    public function test_show_requires_authentication()
     {
         $request = $this->createNonAdminRequest();
         $response = $this->badgeController->show($request, 1);
@@ -155,7 +163,7 @@ class BadgeControllerTest extends TestCase
             ->once()
             ->andReturn($mockCreatedBadge);
 
-        $request = $this->createAdminRequest($requestData);
+        $request = $this->createAuthRequest($requestData);
         $request->files->set('image', $mockFile);
 
         $response = $this->badgeController->store($request);
@@ -167,13 +175,13 @@ class BadgeControllerTest extends TestCase
 
     public function test_store_fails_without_required_fields()
     {
-        $request = $this->createAdminRequest([]);
+        $request = $this->createAuthRequest([]);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $this->badgeController->store($request);
     }
 
-    public function test_store_requires_admin_authorization()
+    public function test_store_requires_authentication()
     {
         $request = $this->createNonAdminRequest(['name' => 'Test']);
         $response = $this->badgeController->store($request);
@@ -202,7 +210,7 @@ class BadgeControllerTest extends TestCase
             ->with(1, Mockery::type('array'))
             ->andReturn($mockUpdatedBadge);
 
-        $request = $this->createAdminRequest($requestData);
+        $request = $this->createAuthRequest($requestData);
         $response = $this->badgeController->update($request, 1);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -210,7 +218,7 @@ class BadgeControllerTest extends TestCase
         $this->assertEquals($mockUpdatedBadge, $data);
     }
 
-    public function test_update_requires_admin_authorization()
+    public function test_update_requires_authentication()
     {
         $request = $this->createNonAdminRequest(['name' => 'Test']);
         $response = $this->badgeController->update($request, 1);
@@ -239,7 +247,7 @@ class BadgeControllerTest extends TestCase
             ->with(1)
             ->andReturn(true);
 
-        $request = $this->createAdminRequest();
+        $request = $this->createAuthRequest();
         $response = $this->badgeController->destroy($request, 1);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -247,7 +255,7 @@ class BadgeControllerTest extends TestCase
         $this->assertTrue($data['success']);
     }
 
-    public function test_destroy_requires_admin_authorization()
+    public function test_destroy_requires_authentication()
     {
         $request = $this->createNonAdminRequest();
         $response = $this->badgeController->destroy($request, 1);
@@ -259,21 +267,21 @@ class BadgeControllerTest extends TestCase
     public function test_award_badge_successfully()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $mockUserBadge = [
             'id' => 1,
-            'user_id' => 123,
-            'badge_id' => 1,
+            'username' => 'testuser',
+            'badge_id' => '1',
             'awarded_at' => '2024-01-15T10:30:00Z'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('checkUserBadgeExists')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(false);
 
         $this->mockSupabaseService
@@ -281,7 +289,7 @@ class BadgeControllerTest extends TestCase
             ->once()
             ->andReturn($mockUserBadge);
 
-        $request = $this->createAdminRequest($requestData);
+        $request = $this->createAuthRequest($requestData);
         $response = $this->badgeController->awardBadge($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -292,17 +300,17 @@ class BadgeControllerTest extends TestCase
     public function test_award_badge_fails_if_user_already_has_badge()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('checkUserBadgeExists')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(true);
 
-        $request = $this->createAdminRequest($requestData);
+        $request = $this->createAuthRequest($requestData);
         $response = $this->badgeController->awardBadge($request);
 
         $this->assertEquals(422, $response->getStatusCode());
@@ -312,7 +320,7 @@ class BadgeControllerTest extends TestCase
 
     public function test_award_badge_requires_valid_data()
     {
-        $request = $this->createAdminRequest([]);
+        $request = $this->createAuthRequest([]);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $this->badgeController->awardBadge($request);
@@ -322,17 +330,17 @@ class BadgeControllerTest extends TestCase
     public function test_revoke_badge_successfully()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('revokeUserBadge')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(true);
 
-        $request = $this->createAdminRequest($requestData);
+        $request = $this->createAuthRequest($requestData);
         $response = $this->badgeController->revokeBadge($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -340,11 +348,11 @@ class BadgeControllerTest extends TestCase
         $this->assertTrue($data['success']);
     }
 
-    public function test_revoke_badge_requires_admin_authorization()
+    public function test_revoke_badge_requires_authentication()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $request = $this->createNonAdminRequest($requestData);
@@ -357,8 +365,8 @@ class BadgeControllerTest extends TestCase
     public function test_get_user_badges_returns_data()
     {
         $mockUserBadges = [
-            ['id' => 1, 'user_id' => 123, 'badge_id' => 1],
-            ['id' => 2, 'user_id' => 123, 'badge_id' => 2]
+            ['id' => 1, 'username' => 'testuser', 'badge_id' => 1],
+            ['id' => 2, 'username' => 'testuser', 'badge_id' => 2]
         ];
 
         $this->mockSupabaseService
@@ -366,7 +374,7 @@ class BadgeControllerTest extends TestCase
             ->once()
             ->andReturn($mockUserBadges);
 
-        $request = $this->createAdminRequest();
+        $request = $this->createAuthRequest();
         $response = $this->badgeController->getUserBadges($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -434,17 +442,17 @@ class BadgeControllerTest extends TestCase
     public function test_api_user_badges_returns_user_data()
     {
         $mockUserBadges = [
-            ['id' => 1, 'user_id' => 123, 'badge_id' => 1]
+            ['id' => 1, 'username' => 'testuser', 'badge_id' => '1']
         ];
 
         $this->mockSupabaseService
-            ->shouldReceive('getUserBadgesByUserId')
+            ->shouldReceive('getUserBadgesByUsername')
             ->once()
-            ->with(123)
+            ->with('testuser')
             ->andReturn($mockUserBadges);
 
         $request = new Request();
-        $response = $this->badgeController->apiUserBadges($request, 123);
+        $response = $this->badgeController->apiUserBadges($request, 'testuser');
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
@@ -455,21 +463,21 @@ class BadgeControllerTest extends TestCase
     public function test_api_award_badge_works_without_admin()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $mockUserBadge = [
             'id' => 1,
-            'user_id' => 123,
-            'badge_id' => 1,
+            'username' => 'testuser',
+            'badge_id' => '1',
             'awarded_at' => '2024-01-15T10:30:00Z'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('checkUserBadgeExists')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(false);
 
         $this->mockSupabaseService
@@ -489,14 +497,14 @@ class BadgeControllerTest extends TestCase
     public function test_api_award_badge_prevents_duplicates()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('checkUserBadgeExists')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(true);
 
         $request = new Request($requestData);
@@ -511,14 +519,14 @@ class BadgeControllerTest extends TestCase
     public function test_api_revoke_badge_works()
     {
         $requestData = [
-            'user_id' => 123,
-            'badge_id' => 1
+            'username' => 'testuser',
+            'badge_id' => '1'
         ];
 
         $this->mockSupabaseService
             ->shouldReceive('revokeUserBadge')
             ->once()
-            ->with(123, 1)
+            ->with('testuser', '1')
             ->andReturn(true);
 
         $request = new Request($requestData);
