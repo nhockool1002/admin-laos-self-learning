@@ -145,11 +145,12 @@ class AuthControllerTest extends TestCase
 
     public function test_login_with_wrong_password()
     {
-        $user = $this->createMockUser([
+        $user = [
             'email' => 'admin@example.com',
-            'password' => md5('correct_password'),
+            'username' => 'admin',
+            'password' => md5('correct_password'), // đúng password là 'correct_password'
             'is_admin' => true
-        ]);
+        ];
 
         $this->supabaseServiceMock
             ->shouldReceive('getUserByEmail')
