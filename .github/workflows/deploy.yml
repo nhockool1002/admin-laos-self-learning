@@ -140,6 +140,7 @@ jobs:
             storage/framework/sessions/*
             storage/framework/testing/*
             storage/framework/views/*
+            **/vendor/**
 
       - name: 🎉 Deployment Success Notification
         if: success()
