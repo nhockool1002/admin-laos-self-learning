@@ -99,6 +99,11 @@
                     <textarea id="badge-description" name="description" required rows="3" class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none resize-none"></textarea>
                 </div>
                 
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Điều kiện</label>
+                    <input type="text" id="badge-condition" name="condition" class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none" placeholder="Điều kiện để đạt huy hiệu">
+                </div>
+                
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-purple-200 mb-2">Hình ảnh *</label>
                     <div class="flex items-center justify-center w-full">
@@ -145,10 +150,8 @@
                 <input type="hidden" id="award-badge-id" name="badge_id">
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-purple-200 mb-2">Chọn người dùng *</label>
-                    <select id="user-select" name="user_id" required class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none">
-                        <option value="">-- Chọn người dùng --</option>
-                    </select>
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Tên người dùng *</label>
+                    <input type="text" id="username-input" name="username" required class="w-full px-4 py-3 bg-[#2d3250] text-white rounded-xl border border-purple-400/30 focus:border-purple-400 focus:outline-none" placeholder="Nhập username">
                 </div>
                 
                 <div class="flex gap-3">
@@ -308,13 +311,15 @@ function renderBadges(badgesToRender) {
     tbody.innerHTML = badgesToRender.map(badge => `
         <tr class="border-b border-purple-400/20 hover:bg-purple-700/20 transition">
             <td class="py-4 px-4">
-                <img src="${badge.image_url}" alt="${badge.name}" class="w-12 h-12 object-cover rounded-lg border border-purple-400/30">
+                <img src="${badge.image_path}" alt="${badge.name}" class="w-12 h-12 object-cover rounded-lg border border-purple-400/30">
             </td>
             <td class="py-4 px-4">
                 <div class="font-semibold text-white">${badge.name}</div>
+                <div class="text-xs text-purple-200">${badge.id}</div>
             </td>
             <td class="py-4 px-4">
                 <div class="text-purple-100 max-w-xs truncate" title="${badge.description}">${badge.description}</div>
+                <div class="text-xs text-purple-300">Điều kiện: ${badge.condition || 'Không có'}</div>
             </td>
             <td class="py-4 px-4">
                 <div class="text-purple-100 text-sm">${formatDate(badge.created_at)}</div>
@@ -365,10 +370,11 @@ function openBadgeModal(badge = null) {
         document.getElementById('badge-id').value = badge.id;
         document.getElementById('badge-name').value = badge.name;
         document.getElementById('badge-description').value = badge.description;
+        document.getElementById('badge-condition').value = badge.condition || '';
         
         // Show current image
-        if (badge.image_url) {
-            document.getElementById('preview-img').src = badge.image_url;
+        if (badge.image_path) {
+            document.getElementById('preview-img').src = badge.image_path;
             document.getElementById('image-preview').classList.remove('hidden');
         }
     } else {
@@ -501,8 +507,8 @@ async function handleAwardSubmit(e) {
 
         const formData = new FormData(e.target);
         const data = {
-            user_id: parseInt(formData.get('user_id')),
-            badge_id: parseInt(formData.get('badge_id'))
+            username: formData.get('username'),
+            badge_id: formData.get('badge_id')
         };
 
         const response = await fetch('/supabase/user-badges/award', {
@@ -622,13 +628,14 @@ function renderUserBadgesModal(badge, usersWithBadges) {
         user.user_badges && user.user_badges.some(ub => ub.badge_id === badge.id)
     );
     
-    content.innerHTML = `
+            content.innerHTML = `
         <div class="mb-6">
             <div class="flex items-center gap-4 p-4 bg-[#2d3250] rounded-xl">
-                <img src="${badge.image_url}" alt="${badge.name}" class="w-16 h-16 object-cover rounded-lg border border-purple-400/30">
+                <img src="${badge.image_path}" alt="${badge.name}" class="w-16 h-16 object-cover rounded-lg border border-purple-400/30">
                 <div>
                     <h4 class="text-lg font-semibold text-white">${badge.name}</h4>
                     <p class="text-purple-100">${badge.description}</p>
+                    <p class="text-xs text-purple-300">ID: ${badge.id}</p>
                 </div>
             </div>
         </div>
@@ -645,9 +652,9 @@ function renderUserBadgesModal(badge, usersWithBadges) {
                                 <div>
                                     <div class="font-semibold text-white">${user.username}</div>
                                     <div class="text-sm text-purple-100">${user.email}</div>
-                                    <div class="text-xs text-purple-200">Tặng lúc: ${formatDate(userBadge.awarded_at)}</div>
+                                    <div class="text-xs text-purple-200">Tặng lúc: ${formatDate(userBadge.achieved_date)}</div>
                                 </div>
-                                <button onclick="revokeBadge(${user.id}, ${badge.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition text-sm">
+                                <button onclick="revokeBadge('${user.username}', '${badge.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition text-sm">
                                     <i class="fa-solid fa-times mr-1"></i>Thu hồi
                                 </button>
                             </div>
@@ -659,7 +666,7 @@ function renderUserBadgesModal(badge, usersWithBadges) {
     `;
 }
 
-async function revokeBadge(userId, badgeId) {
+async function revokeBadge(username, badgeId) {
     if (!confirm('Bạn có chắc chắn muốn thu hồi huy hiệu này từ người dùng?')) {
         return;
     }
@@ -679,7 +686,7 @@ async function revokeBadge(userId, badgeId) {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
-                user_id: userId,
+                username: username,
                 badge_id: badgeId
             })
         });

@@ -77,7 +77,7 @@ Route::delete('/supabase/badges/{id}', [BadgeController::class, 'destroy']);
 
 // User badge management routes
 Route::get('/supabase/user-badges', [BadgeController::class, 'getUserBadges']);
-Route::get('/supabase/user-badges/{userId}', [BadgeController::class, 'getUserBadgesByUserId']);
+Route::get('/supabase/user-badges/{username}', [BadgeController::class, 'getUserBadgesByUserId']);
 Route::post('/supabase/user-badges/award', [BadgeController::class, 'awardBadge']);
 Route::post('/supabase/user-badges/revoke', [BadgeController::class, 'revokeBadge']);
 Route::get('/supabase/users-with-badges', [BadgeController::class, 'getUsersWithBadges']);
@@ -86,7 +86,7 @@ Route::get('/supabase/users-with-badges', [BadgeController::class, 'getUsersWith
 Route::prefix('api/v1')->group(function () {
     Route::get('/badges', [BadgeController::class, 'apiBadges']);
     Route::get('/badges/{id}', [BadgeController::class, 'apiBadgeDetail']);
-    Route::get('/users/{userId}/badges', [BadgeController::class, 'apiUserBadges']);
+    Route::get('/users/{username}/badges', [BadgeController::class, 'apiUserBadges']);
     Route::post('/badges/award', [BadgeController::class, 'apiAwardBadge']);
     Route::post('/badges/revoke', [BadgeController::class, 'apiRevokeBadge']);
 });

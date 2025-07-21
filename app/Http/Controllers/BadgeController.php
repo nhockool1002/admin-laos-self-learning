@@ -68,10 +68,11 @@ class BadgeController extends Controller
         }
 
         $data = [
+            'id' => 'badge_' . time(), // Generate unique ID
             'name' => $request->name,
             'description' => $request->description,
-            'image_url' => $imagePath,
-            'created_at' => now()->toISOString()
+            'image_path' => $imagePath,
+            'condition' => $request->condition ?? 'nan'
         ];
 
         $badge = $this->supabaseService->createBadge($data);
@@ -115,6 +116,10 @@ class BadgeController extends Controller
         if ($request->has('description')) {
             $data['description'] = $request->description;
         }
+        
+        if ($request->has('condition')) {
+            $data['condition'] = $request->condition;
+        }
 
         // Xử lý upload hình ảnh mới nếu có
         if ($request->hasFile('image')) {
@@ -125,18 +130,16 @@ class BadgeController extends Controller
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('assets/images'), $imageName);
             $imagePath = '/assets/images/' . $imageName;
-            $data['image_url'] = $imagePath;
+            $data['image_path'] = $imagePath;
 
             // Xóa hình ảnh cũ nếu tồn tại
-            if ($oldBadge && !empty($oldBadge['image_url'])) {
-                $oldImagePath = public_path($oldBadge['image_url']);
+            if ($oldBadge && !empty($oldBadge['image_path'])) {
+                $oldImagePath = public_path($oldBadge['image_path']);
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
                 }
             }
         }
-
-        $data['updated_at'] = now()->toISOString();
 
         $badge = $this->supabaseService->updateBadge($id, $data);
         return response()->json($badge);
@@ -154,9 +157,9 @@ class BadgeController extends Controller
         
         $ok = $this->supabaseService->deleteBadge($id);
         
-        if ($ok && $badge && !empty($badge['image_url'])) {
+        if ($ok && $badge && !empty($badge['image_path'])) {
             // Xóa hình ảnh khỏi server
-            $imagePath = public_path($badge['image_url']);
+            $imagePath = public_path($badge['image_path']);
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
@@ -193,23 +196,23 @@ class BadgeController extends Controller
         }
 
         $request->validate([
-            'user_id' => 'required|integer',
-            'badge_id' => 'required|integer'
+            'username' => 'required|string',
+            'badge_id' => 'required|string'
         ]);
 
-        $userId = $request->user_id;
+        $username = $request->username;
         $badgeId = $request->badge_id;
 
         // Kiểm tra xem user đã có badge này chưa
-        $exists = $this->supabaseService->checkUserBadgeExists($userId, $badgeId);
+        $exists = $this->supabaseService->checkUserBadgeExists($username, $badgeId);
         if ($exists) {
             return response()->json(['error' => 'User đã có huy hiệu này rồi!'], 422);
         }
 
         $data = [
-            'user_id' => $userId,
+            'username' => $username,
             'badge_id' => $badgeId,
-            'awarded_at' => now()->toISOString()
+            'achieved_date' => now()->toISOString()
         ];
 
         $userBadge = $this->supabaseService->awardUserBadge($data);
@@ -227,14 +230,14 @@ class BadgeController extends Controller
         }
 
         $request->validate([
-            'user_id' => 'required|integer',
-            'badge_id' => 'required|integer'
+            'username' => 'required|string',
+            'badge_id' => 'required|string'
         ]);
 
-        $userId = $request->user_id;
+        $username = $request->username;
         $badgeId = $request->badge_id;
 
-        $ok = $this->supabaseService->revokeUserBadge($userId, $badgeId);
+        $ok = $this->supabaseService->revokeUserBadge($username, $badgeId);
         return response()->json(['success' => $ok]);
     }
 
@@ -277,9 +280,9 @@ class BadgeController extends Controller
     }
 
     // API: Lấy badges của user (public API)
-    public function apiUserBadges(Request $request, $userId)
+    public function apiUserBadges(Request $request, $username)
     {
-        $userBadges = $this->supabaseService->getUserBadgesByUserId($userId);
+        $userBadges = $this->supabaseService->getUserBadgesByUsername($username);
         return response()->json([
             'success' => true,
             'data' => $userBadges
@@ -291,15 +294,15 @@ class BadgeController extends Controller
     {
         // Có thể thêm API key authentication ở đây
         $request->validate([
-            'user_id' => 'required|integer',
-            'badge_id' => 'required|integer'
+            'username' => 'required|string',
+            'badge_id' => 'required|string'
         ]);
 
-        $userId = $request->user_id;
+        $username = $request->username;
         $badgeId = $request->badge_id;
 
         // Kiểm tra xem user đã có badge này chưa
-        $exists = $this->supabaseService->checkUserBadgeExists($userId, $badgeId);
+        $exists = $this->supabaseService->checkUserBadgeExists($username, $badgeId);
         if ($exists) {
             return response()->json([
                 'success' => false,
@@ -308,9 +311,9 @@ class BadgeController extends Controller
         }
 
         $data = [
-            'user_id' => $userId,
+            'username' => $username,
             'badge_id' => $badgeId,
-            'awarded_at' => now()->toISOString()
+            'achieved_date' => now()->toISOString()
         ];
 
         $userBadge = $this->supabaseService->awardUserBadge($data);
@@ -332,14 +335,14 @@ class BadgeController extends Controller
     {
         // Có thể thêm API key authentication ở đây
         $request->validate([
-            'user_id' => 'required|integer',
-            'badge_id' => 'required|integer'
+            'username' => 'required|string',
+            'badge_id' => 'required|string'
         ]);
 
-        $userId = $request->user_id;
+        $username = $request->username;
         $badgeId = $request->badge_id;
 
-        $ok = $this->supabaseService->revokeUserBadge($userId, $badgeId);
+        $ok = $this->supabaseService->revokeUserBadge($username, $badgeId);
         return response()->json([
             'success' => $ok,
             'message' => $ok ? 'Badge revoked successfully' : 'Failed to revoke badge'
