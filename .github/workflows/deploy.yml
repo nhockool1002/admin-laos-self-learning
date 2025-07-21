@@ -165,4 +165,4 @@ jobs:
           password: ${{ secrets.ROOTPWD }}
           script: |
             cd /www/wwwroot/admin.tienglao.io.vn
-            composer install --no-dev --optimize-autoloader
+            composer install
