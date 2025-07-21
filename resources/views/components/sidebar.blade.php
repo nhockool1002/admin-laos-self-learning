@@ -1,6 +1,7 @@
 @php
     $isCourseSub = request()->is('admin/courses') || request()->is('admin/lessons');
     $isGameSub = request()->is('admin/games') || request()->is('admin/game-groups');
+    $isBadgesSub = request()->is('admin/badges');
 @endphp
 <aside class="h-screen w-60 shrink-0 bg-[#232946] flex flex-col transition-all duration-300 shadow-2xl rounded-r-3xl border-r border-[#2d3250]/60">
     <div class="flex flex-col items-center gap-2 px-0 py-8">
@@ -73,6 +74,10 @@
                 </a>
             </div>
         </div>
+        <a href="/admin/badges" class="flex items-center gap-3 px-3 py-2 rounded-2xl font-medium transition-all duration-200 group text-[0.98rem] {{ request()->is('admin/badges') ? 'bg-gradient-to-r from-purple-700 to-indigo-700 text-white shadow-lg' : 'text-purple-100 hover:bg-purple-700/30 hover:shadow' }}">
+            <i class="fa-solid fa-award text-lg"></i>
+            <span>Quản lý Huy hiệu</span>
+        </a>
         <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-2xl font-medium transition-all duration-200 group text-[0.98rem] text-purple-100 hover:bg-purple-700/30 hover:shadow">
             <i class="fa-solid fa-font text-lg"></i>
             <span>Quản lý Bảng chữ cái</span>

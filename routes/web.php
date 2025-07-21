@@ -5,6 +5,7 @@ use App\Http\Controllers\SupabaseUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\BadgeController;
 
 Route::get('/', function () {
     return view('admin');
@@ -42,6 +43,7 @@ Route::get('/admin/courses', function () { return view('courses'); });
 Route::get('/admin/lessons', function () { return view('lessons'); });
 Route::get('/admin/games', function () { return view('games'); });
 Route::get('/admin/game-groups', function () { return view('game-groups'); });
+Route::get('/admin/badges', function () { return view('badges'); });
 
 Route::get('/supabase/courses', [CourseController::class, 'index']);
 Route::post('/supabase/courses', [CourseController::class, 'store']);
@@ -65,3 +67,26 @@ Route::post('/supabase/game-groups', [GameController::class, 'createGroup']);
 Route::get('/supabase/game-groups/{id}', [GameController::class, 'showGroup']);
 Route::put('/supabase/game-groups/{id}', [GameController::class, 'updateGroup']);
 Route::delete('/supabase/game-groups/{id}', [GameController::class, 'deleteGroup']);
+
+// Badge management routes
+Route::get('/supabase/badges', [BadgeController::class, 'index']);
+Route::post('/supabase/badges', [BadgeController::class, 'store']);
+Route::get('/supabase/badges/{id}', [BadgeController::class, 'show']);
+Route::put('/supabase/badges/{id}', [BadgeController::class, 'update']);
+Route::delete('/supabase/badges/{id}', [BadgeController::class, 'destroy']);
+
+// User badge management routes
+Route::get('/supabase/user-badges', [BadgeController::class, 'getUserBadges']);
+Route::get('/supabase/user-badges/{userId}', [BadgeController::class, 'getUserBadgesByUserId']);
+Route::post('/supabase/user-badges/award', [BadgeController::class, 'awardBadge']);
+Route::post('/supabase/user-badges/revoke', [BadgeController::class, 'revokeBadge']);
+Route::get('/supabase/users-with-badges', [BadgeController::class, 'getUsersWithBadges']);
+
+// Public API routes for third-party integration
+Route::prefix('api/v1')->group(function () {
+    Route::get('/badges', [BadgeController::class, 'apiBadges']);
+    Route::get('/badges/{id}', [BadgeController::class, 'apiBadgeDetail']);
+    Route::get('/users/{userId}/badges', [BadgeController::class, 'apiUserBadges']);
+    Route::post('/badges/award', [BadgeController::class, 'apiAwardBadge']);
+    Route::post('/badges/revoke', [BadgeController::class, 'apiRevokeBadge']);
+});
