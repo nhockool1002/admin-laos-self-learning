@@ -130,6 +130,7 @@ jobs:
             **/.github/**
             .env.example
             .env.testing
+            .env
             phpunit.xml
             .editorconfig
             .gitattributes
