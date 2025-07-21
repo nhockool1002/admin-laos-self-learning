@@ -73,15 +73,6 @@ jobs:
           echo "🧪 Running Feature Tests..."
           php artisan test --testsuite=Feature --stop-on-failure
 
-      - name: 📊 Generate Coverage Report
-        run: php artisan test --coverage-html=public/coverage
-
-      - name: 📤 Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: public/coverage/
-
   ftp-deploy:
     name: ⭐ Deploy to Production
     runs-on: ubuntu-latest
@@ -108,7 +99,7 @@ jobs:
           fi
 
       - name: 📊 Generate Coverage Report
-        run: php artisan test --coverage-html=public/coverage
+        run: ./vendor/bin/phpunit --coverage-html=public/coverage
 
       - name: ⭐ Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
