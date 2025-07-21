@@ -31,7 +31,7 @@ class BadgeManagementTest extends TestCase
     /**
      * Create admin authentication headers
      */
-    private function adminHeaders(): array
+    protected function adminHeaders(): array
     {
         $adminUser = [
             'id' => 1,
