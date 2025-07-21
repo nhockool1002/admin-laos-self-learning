@@ -34,11 +34,12 @@ class AuthControllerTest extends TestCase
 
     public function test_login_with_valid_email_credentials()
     {
-        $user = $this->createMockUser([
+        $user = [
             'email' => 'admin@example.com',
+            'username' => 'admin',
             'password' => md5('password123'),
             'is_admin' => true
-        ]);
+        ];
 
         $this->supabaseServiceMock
             ->shouldReceive('getUserByEmail')
