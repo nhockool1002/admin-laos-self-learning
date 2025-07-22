@@ -10,9 +10,6 @@
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen lg:ml-0">
         <x-header title="Trang chủ">
-            <x-slot name="right">
-                <button id="logout-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-8 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-lg">Đăng xuất</button>
-            </x-slot>
         </x-header>
         
         <!-- Main Content -->
