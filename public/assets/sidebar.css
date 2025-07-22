@@ -1,0 +1,477 @@
+/* Modern Sidebar CSS for Tiếng Lào Admin Panel - Enhanced Version with Slower Transitions */
+
+/* Base sidebar styles with enhanced backdrop */
+#sidebar {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced scrollbar styling for sidebar navigation */
+#sidebar nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar nav::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+#sidebar nav::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgba(147, 51, 234, 0.3), rgba(99, 102, 241, 0.4));
+    border-radius: 10px;
+    transition: all 0.6s ease;
+}
+
+#sidebar nav::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgba(147, 51, 234, 0.6), rgba(99, 102, 241, 0.7));
+    transform: scaleX(1.2);
+}
+
+/* Enhanced menu item animations with slower transition effects */
+.menu-item-slide {
+    transform: translateX(0) scale(1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item-slide:hover {
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(147, 51, 234, 0.25);
+}
+
+.menu-item-slide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.8s ease-in-out;
+}
+
+.menu-item-slide:hover::before {
+    left: 100%;
+}
+
+/* Enhanced active states with slower glow effects */
+.sidebar-active {
+    position: relative;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 6px 25px rgba(147, 51, 234, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(147, 51, 234, 0.4);
+    transform: scale(1.02);
+    transition: all 0.6s ease;
+}
+
+.sidebar-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 70%;
+    background: linear-gradient(to bottom, #ec4899, #f97316);
+    border-radius: 0 6px 6px 0;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+    transition: all 0.5s ease;
+}
+
+.sidebar-active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.sidebar-submenu-active {
+    background: linear-gradient(90deg, rgba(147, 51, 234, 0.4), rgba(99, 102, 241, 0.3));
+    border-left: 4px solid #ec4899;
+    box-shadow: 0 4px 20px rgba(147, 51, 234, 0.3);
+    transform: scale(1.02);
+    position: relative;
+    transition: all 0.6s ease;
+}
+
+.sidebar-submenu-active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.1), transparent);
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Advanced submenu animations with slower timing */
+.submenu-enter {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.submenu-enter-active {
+    max-height: 600px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.submenu-exit {
+    max-height: 600px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.submenu-exit-active {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+}
+
+/* Enhanced chevron rotation with slower spring and glow effect */
+.chevron-rotate {
+    transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0));
+}
+
+.chevron-rotated {
+    transform: rotate(180deg) scale(1.15);
+    color: #ec4899;
+    filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.4));
+}
+
+/* Mobile responsive adjustments with slower enhanced effects */
+@media (max-width: 1023px) {
+    #sidebar {
+        width: 320px;
+        box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .main-content-mobile {
+        padding-left: 0;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #sidebar-toggle {
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #sidebar-toggle:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 8px 30px rgba(147, 51, 234, 0.7);
+    }
+    
+    #sidebar-toggle:active {
+        transform: scale(0.95) rotate(90deg);
+        transition: transform 0.2s ease;
+    }
+}
+
+/* Tablet responsive enhancements */
+@media (min-width: 768px) and (max-width: 1023px) {
+    #sidebar {
+        width: 300px;
+    }
+}
+
+/* Desktop responsive with slower enhanced effects */
+@media (min-width: 1024px) {
+    #sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    #sidebar-overlay {
+        display: none !important;
+    }
+    
+    #sidebar-toggle {
+        display: none !important;
+    }
+}
+
+/* Advanced hover effects with slower multiple layers */
+.menu-hover-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-hover-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.9s ease-in-out;
+    z-index: 1;
+}
+
+.menu-hover-effect:hover::before {
+    left: 100%;
+}
+
+.menu-hover-effect::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.menu-hover-effect:hover::after {
+    opacity: 1;
+}
+
+/* Enhanced focus states for accessibility with slower transitions */
+.menu-toggle:focus,
+nav a:focus {
+    outline: 3px solid rgba(139, 92, 246, 0.6);
+    outline-offset: 3px;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.2);
+    transition: all 0.5s ease;
+}
+
+/* Loading animation with slower enhanced pulsing */
+.sidebar-loading {
+    animation: enhanced-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes enhanced-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+}
+
+/* Badge/notification styles with slower glow */
+.menu-notification {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-radius: 50%;
+    border: 2px solid #232946;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    animation: notification-pulse 3s infinite;
+}
+
+@keyframes notification-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+    }
+}
+
+/* Enhanced sidebar footer with slower transitions */
+.sidebar-footer {
+    background: linear-gradient(135deg, rgba(45, 50, 80, 0.8), rgba(35, 41, 70, 0.9));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(147, 51, 234, 0.2);
+    transition: all 0.5s ease;
+}
+
+/* Enhanced copyright footer styling with slower transitions */
+.sidebar-footer-copyright {
+    background: linear-gradient(135deg, rgba(45, 50, 80, 0.1), rgba(35, 41, 70, 0.2));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    transition: all 0.6s ease;
+}
+
+.sidebar-footer-copyright:hover {
+    background: linear-gradient(135deg, rgba(45, 50, 80, 0.2), rgba(35, 41, 70, 0.3));
+    transform: translateY(-1px);
+}
+
+/* Custom scrollbar for Firefox with enhanced styling */
+#sidebar nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(147, 51, 234, 0.4) transparent;
+}
+
+/* Slower smooth transitions for all interactive elements */
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 500ms;
+}
+
+/* Enhanced ripple effect with slower timing */
+@keyframes enhanced-ripple {
+    0% {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.menu-ripple::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    pointer-events: none;
+    animation: enhanced-ripple 1s ease-out;
+}
+
+/* High contrast mode support with enhanced visibility */
+@media (prefers-contrast: high) {
+    #sidebar {
+        border-right: 3px solid #ffffff;
+        background: linear-gradient(to bottom, #000000, #1a1a1a);
+        transition: all 0.6s ease;
+    }
+    
+    .sidebar-active {
+        border: 3px solid #ffffff;
+        background: #4a5568 !important;
+    }
+    
+    .menu-toggle, nav a {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.5s ease;
+    }
+}
+
+/* Reduced motion support with graceful degradation */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .menu-toggle:hover, nav a:hover {
+        transform: none !important;
+    }
+}
+
+/* Dark mode enhancements with improved contrast and slower transitions */
+@media (prefers-color-scheme: dark) {
+    #sidebar {
+        background: linear-gradient(to bottom, #0f0f23, #1a1b2e);
+        border-right-color: rgba(147, 51, 234, 0.3);
+        transition: all 0.6s ease;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, rgba(147, 51, 234, 0.5), rgba(99, 102, 241, 0.6));
+        transition: all 0.6s ease;
+    }
+}
+
+/* Print styles with complete hiding */
+@media print {
+    #sidebar,
+    #sidebar-toggle,
+    #sidebar-overlay {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    .main-content-area {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+}
+
+/* Enhanced logo animation with slower timing */
+.logo-hover {
+    transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.logo-hover:hover {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 4px 15px rgba(147, 51, 234, 0.4));
+}
+
+/* Slower stagger animation for menu items on load */
+@keyframes menu-item-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.menu-group:nth-child(1) { animation: menu-item-fade-in 0.8s ease-out 0.1s both; }
+.menu-group:nth-child(2) { animation: menu-item-fade-in 0.8s ease-out 0.3s both; }
+.menu-group:nth-child(3) { animation: menu-item-fade-in 0.8s ease-out 0.5s both; }
+.menu-group:nth-child(4) { animation: menu-item-fade-in 0.8s ease-out 0.7s both; }
+.menu-group:nth-child(5) { animation: menu-item-fade-in 0.8s ease-out 0.9s both; }
+
+/* Mobile overlay enhancement with slower transitions */
+#sidebar-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.6s ease;
+}
+
+/* Enhanced button styles with slower timing */
+#logout-menu {
+    position: relative;
+    overflow: hidden;
+}
+
+#logout-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+    transition: left 0.8s ease;
+}
+
+#logout-menu:hover::before {
+    left: 100%;
+}

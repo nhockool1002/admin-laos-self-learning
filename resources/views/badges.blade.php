@@ -6,11 +6,8 @@
 <div class="flex">
     <!-- Sidebar -->
     @include('components.sidebar')
-    <div class="flex-1 flex flex-col min-h-screen">
+    <div class="flex-1 flex flex-col min-h-screen lg:ml-0">
         <x-header title="Quản lý Huy hiệu">
-            <x-slot name="right">
-                <button id="logout-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-8 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-lg ml-2">Đăng xuất</button>
-            </x-slot>
         </x-header>
         <!-- Main Content -->
         <main class="flex-1 p-6">
@@ -227,11 +224,6 @@ function setupEventListeners() {
     // Image upload
     document.getElementById('badge-image').addEventListener('change', handleImagePreview);
     document.getElementById('remove-image').addEventListener('click', removeImagePreview);
-    
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        window.location.href = '/logout';
-    });
 }
 
 async function loadBadges() {
@@ -702,7 +694,5 @@ function renderUserDatalist() {
     datalist.innerHTML = users.map(u => `<option value="${u.username}">${u.email}</option>`).join('');
 }
 </script>
-
-@include('components.header-logout')
 </body>
 </html>

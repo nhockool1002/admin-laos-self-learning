@@ -4,6 +4,7 @@
     <title>@yield('title', 'Học Tiếng Lào Admin Panel')</title>
     <link rel="icon" type="image/png" href="/assets/imgs/laos.png">
     <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="/assets/sidebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
@@ -36,6 +37,14 @@
         .toast-failed {
             background: linear-gradient(90deg, #ff5252 0%, #ffb199 100%);
             color: #fff;
+        }
+        
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 1023px) {
+            .main-content-area {
+                padding-left: 0 !important;
+                margin-left: 0 !important;
+            }
         }
     </style>
 </head> 
