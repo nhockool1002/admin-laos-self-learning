@@ -1,0 +1,258 @@
+/* Modern Sidebar CSS for Tiếng Lào Admin Panel */
+
+/* Base sidebar styles */
+#sidebar {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Scrollbar styling for sidebar navigation */
+#sidebar nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sidebar nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sidebar nav::-webkit-scrollbar-thumb {
+    background: rgba(147, 51, 234, 0.3);
+    border-radius: 4px;
+}
+
+#sidebar nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(147, 51, 234, 0.5);
+}
+
+/* Menu item animations */
+.menu-item-slide {
+    transform: translateX(0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item-slide:hover {
+    transform: translateX(6px);
+}
+
+/* Enhanced active states */
+.sidebar-active {
+    position: relative;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 4px 20px rgba(147, 51, 234, 0.4);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+}
+
+.sidebar-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: linear-gradient(to bottom, #ec4899, #f97316);
+    border-radius: 0 4px 4px 0;
+}
+
+.sidebar-submenu-active {
+    background: rgba(147, 51, 234, 0.4);
+    border-left: 3px solid #ec4899;
+    box-shadow: 0 2px 10px rgba(147, 51, 234, 0.3);
+}
+
+/* Smooth submenu animations */
+.submenu-enter {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.submenu-enter-active {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.submenu-exit {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.submenu-exit-active {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Chevron rotation with spring effect */
+.chevron-rotate {
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.chevron-rotated {
+    transform: rotate(180deg);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1023px) {
+    #sidebar {
+        width: 300px;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Ensure main content doesn't overlap on mobile */
+    .main-content-mobile {
+        padding-left: 0;
+        transition: padding-left 0.3s ease;
+    }
+    
+    /* Mobile sidebar toggle button enhancement */
+    #sidebar-toggle {
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    #sidebar-toggle:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.6);
+    }
+}
+
+/* Tablet responsive */
+@media (min-width: 768px) and (max-width: 1023px) {
+    #sidebar {
+        width: 280px;
+    }
+}
+
+/* Desktop responsive */
+@media (min-width: 1024px) {
+    #sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+    }
+    
+    #sidebar-overlay {
+        display: none !important;
+    }
+    
+    #sidebar-toggle {
+        display: none !important;
+    }
+}
+
+/* Hover effects for menu items */
+.menu-hover-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-hover-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.menu-hover-effect:hover::before {
+    left: 100%;
+}
+
+/* Focus states for accessibility */
+.menu-toggle:focus,
+nav a:focus {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+}
+
+/* Loading animation for sidebar */
+.sidebar-loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Badge/notification styles */
+.menu-notification {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #232946;
+}
+
+/* Sidebar footer enhancements */
+.sidebar-footer {
+    background: linear-gradient(to right, rgba(45, 50, 80, 0.8), rgba(35, 41, 70, 0.8));
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Custom scrollbar for Firefox */
+#sidebar nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(147, 51, 234, 0.3) transparent;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    #sidebar {
+        border-right: 2px solid #ffffff;
+    }
+    
+    .sidebar-active {
+        border: 2px solid #ffffff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+    #sidebar {
+        background: linear-gradient(to bottom, #1a1b2e, #16213e);
+    }
+}
+
+/* Print styles */
+@media print {
+    #sidebar,
+    #sidebar-toggle,
+    #sidebar-overlay {
+        display: none !important;
+    }
+}

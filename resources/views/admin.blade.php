@@ -6,12 +6,15 @@
 <div class="flex">
     <!-- Sidebar -->
     @include('components.sidebar')
-    <div class="flex-1 flex flex-col min-h-screen">
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen lg:ml-0">
         <x-header title="Trang chủ">
             <x-slot name="right">
                 <button id="logout-btn" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-8 py-3 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition text-lg">Đăng xuất</button>
             </x-slot>
         </x-header>
+        
         <!-- Main Content -->
         <main class="flex-1 flex flex-col items-center justify-center py-12 px-4 min-h-screen">
             <div class="w-full max-w-4xl mx-auto">
@@ -25,6 +28,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <!-- Card thống kê nhanh -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-gradient-to-br from-purple-500/80 to-indigo-500/80 rounded-xl p-5 flex flex-col items-center shadow-md">
@@ -48,29 +52,35 @@
                         <span class="text-sm text-purple-100 mt-1">Kiểm tra</span>
                     </div>
                 </div>
+                
                 <!-- Shortcut chức năng -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
                     <a href="/admin/users" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">👤</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Users</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                    <a href="/admin/courses" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">📚</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Bài học</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                    <a href="/admin/alphabet" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">🔤</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Bảng chữ cái</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                    <a href="/admin/practice" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">🎯</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Luyện tập</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                    <a href="/admin/test" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">📝</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Kiểm tra</span>
                     </a>
+                    <a href="/admin/games" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                        <span class="text-2xl">🎮</span>
+                        <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Trò chơi</span>
+                    </a>
                 </div>
+                
                 <!-- Thông báo/hướng dẫn -->
                 <div class="bg-[#232946] rounded-2xl shadow-lg p-6">
                     <h3 class="text-xl font-bold text-purple-200 mb-2">Thông báo & Hướng dẫn</h3>
@@ -85,6 +95,7 @@
         </main>
     </div>
 </div>
+
 <script>
 // Kiểm tra authentication khi trang load
 document.addEventListener('DOMContentLoaded', function() {
@@ -108,43 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hiển thị username
         document.getElementById('username').textContent = userData.username || 'Admin';
         
-        // Không cần load users ở trang admin chính nữa
     } catch (error) {
         // Nếu có lỗi parse JSON, chuyển hướng về trang login
         window.location.href = '/login';
-    }
-});
-
-// Xóa các function loadUsers và displayUsers vì đã chuyển sang trang riêng biệt
-
-// Chuyển đổi section khi click menu
-const menuHome = document.getElementById('menu-home');
-const menuUsers = document.getElementById('menu-users');
-
-function setActiveMenu(menu) {
-    [menuHome, menuUsers].forEach(m => m.classList.remove('bg-purple-800/40', 'shadow-sm'));
-    menu.classList.add('bg-purple-800/40', 'shadow-sm');
-}
-
-// Khi click menu, chuyển route
-menuHome.onclick = function(e) {
-    e.preventDefault();
-    window.history.pushState({}, '', '/');
-    setActiveMenu(menuHome);
-};
-
-menuUsers.onclick = function(e) {
-    // Không cần preventDefault vì đã có href="/admin/users"
-    setActiveMenu(menuUsers);
-};
-
-// Khi load trang, set active menu dựa trên URL hiện tại
-document.addEventListener('DOMContentLoaded', function() {
-    const currentPath = window.location.pathname;
-    if (currentPath === '/admin/users') {
-        setActiveMenu(menuUsers);
-    } else {
-        setActiveMenu(menuHome);
     }
 });
 
@@ -158,7 +135,5 @@ function formatDate(dateStr) {
 
 // Logout được xử lý bởi file logout.js
 </script>
-<!-- Thêm Alpine.js cho hiệu ứng toggle -->
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </body>
 </html> 
