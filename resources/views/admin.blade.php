@@ -63,21 +63,13 @@
                         <span class="text-2xl">📚</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Bài học</span>
                     </a>
-                    <a href="/admin/alphabet" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
-                        <span class="text-2xl">🔤</span>
-                        <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Bảng chữ cái</span>
-                    </a>
-                    <a href="/admin/practice" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
-                        <span class="text-2xl">🎯</span>
-                        <span class="font-semibold text-purple-100 group-hover:text-white">Luyện tập</span>
-                    </a>
-                    <a href="/admin/test" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
-                        <span class="text-2xl">📝</span>
-                        <span class="font-semibold text-purple-100 group-hover:text-white">Kiểm tra</span>
-                    </a>
                     <a href="/admin/games" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
                         <span class="text-2xl">🎮</span>
                         <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Trò chơi</span>
+                    </a>
+                    <a href="/admin/badges" class="flex items-center gap-3 bg-[#2d3250] hover:bg-purple-700/40 transition rounded-xl p-5 shadow group">
+                        <span class="text-2xl">🏆</span>
+                        <span class="font-semibold text-purple-100 group-hover:text-white">Quản lý Huy hiệu</span>
                     </a>
                 </div>
                 
@@ -86,8 +78,10 @@
                     <h3 class="text-xl font-bold text-purple-200 mb-2">Thông báo & Hướng dẫn</h3>
                     <ul class="list-disc pl-6 text-purple-100 space-y-1">
                         <li>Chào mừng bạn đến với hệ thống quản trị Tiếng Lào!</li>
-                        <li>Bạn có thể quản lý Users, Bài học, Bảng chữ cái, Luyện tập và Kiểm tra từ menu bên trái hoặc các shortcut phía trên.</li>
-                        <li>Nhấn vào các card thống kê để xem chi tiết từng mục.</li>
+                        <li>Sidebar mới với thiết kế hiện đại, responsive và hiệu ứng mượt mà.</li>
+                        <li>Bạn có thể quản lý Users, Khoá học, Trò chơi và Huy hiệu từ menu bên trái.</li>
+                        <li>Menu đa cấp cho phép mở/đóng các submenu một cách linh hoạt.</li>
+                        <li>Trên mobile, nhấn nút hamburger để mở/đóng sidebar.</li>
                         <li>Liên hệ admin nếu cần hỗ trợ thêm.</li>
                     </ul>
                 </div>
