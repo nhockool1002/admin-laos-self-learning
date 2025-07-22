@@ -694,7 +694,5 @@ function renderUserDatalist() {
     datalist.innerHTML = users.map(u => `<option value="${u.username}">${u.email}</option>`).join('');
 }
 </script>
-
-@include('components.header-logout')
 </body>
 </html>
