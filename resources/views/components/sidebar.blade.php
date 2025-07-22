@@ -68,19 +68,19 @@
 @endphp
 
 <!-- Sidebar Container -->
-<aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-gradient-to-b from-[#232946] to-[#1e1f37] flex flex-col transition-all duration-300 ease-in-out shadow-2xl border-r border-[#2d3250]/60 z-50 lg:relative lg:translate-x-0 transform -translate-x-full">
+<aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-gradient-to-b from-[#232946] to-[#1e1f37] flex flex-col transition-all duration-500 ease-in-out shadow-2xl border-r border-[#2d3250]/60 z-50 lg:relative lg:translate-x-0 transform -translate-x-full">
     
     <!-- Sidebar Header -->
     <div class="flex flex-col items-center gap-3 px-6 py-8 border-b border-[#2d3250]/40">
         <div class="relative">
-            <img src="/assets/imgs/laos.png" alt="Logo" class="w-16 h-16 object-contain drop-shadow-lg transition-transform duration-500 hover:scale-110 hover:rotate-3">
-            <div class="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
+            <img src="/assets/imgs/laos.png" alt="Logo" class="w-16 h-16 object-contain drop-shadow-lg transition-transform duration-700 hover:scale-110 hover:rotate-3">
+            <div class="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center transition-all duration-500 hover:scale-110">
                 <i class="fa-solid fa-crown text-xs text-white"></i>
             </div>
         </div>
         <div class="text-center">
-            <h1 class="text-xl font-bold text-purple-200 tracking-wide transition-colors duration-300 hover:text-white">Tiếng Lào</h1>
-            <p class="text-sm text-purple-300/70 mt-1 transition-colors duration-300 hover:text-purple-200">Admin Panel</p>
+            <h1 class="text-xl font-bold text-purple-200 tracking-wide transition-colors duration-500 hover:text-white">Tiếng Lào</h1>
+            <p class="text-sm text-purple-300/70 mt-1 transition-colors duration-500 hover:text-purple-200">Admin Panel</p>
         </div>
     </div>
 
@@ -91,22 +91,22 @@
                 <!-- Parent Menu Item with Children -->
                 <div class="menu-group" data-menu-id="{{ $item['id'] }}">
                     <button type="button" 
-                            class="menu-toggle w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ease-in-out group text-sm relative overflow-hidden hover:shadow-lg transform hover:scale-[1.02] {{ $item['active'] ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg active-menu scale-[1.02]' : 'text-purple-100 hover:bg-gradient-to-r hover:from-purple-700/40 hover:to-indigo-700/40 hover:text-white' }}"
+                            class="menu-toggle w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out group text-sm relative overflow-hidden hover:shadow-lg transform hover:scale-[1.02] {{ $item['active'] ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg active-menu scale-[1.02]' : 'text-purple-100 hover:bg-gradient-to-r hover:from-purple-700/40 hover:to-indigo-700/40 hover:text-white' }}"
                             data-submenu="{{ $item['id'] }}-submenu">
-                        <div class="absolute inset-0 bg-gradient-to-r from-purple-400/0 to-pink-400/0 group-hover:from-purple-400/10 group-hover:to-pink-400/10 transition-all duration-500 ease-out"></div>
-                        <i class="{{ $item['icon'] }} text-lg relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3"></i>
-                        <span class="relative z-10 flex-1 text-left transition-all duration-300">{{ $item['title'] }}</span>
-                        <i class="fa-solid fa-chevron-down text-sm relative z-10 transition-all duration-400 ease-in-out chevron-icon group-hover:text-pink-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-400/0 to-pink-400/0 group-hover:from-purple-400/10 group-hover:to-pink-400/10 transition-all duration-700 ease-out"></div>
+                        <i class="{{ $item['icon'] }} text-lg relative z-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3"></i>
+                        <span class="relative z-10 flex-1 text-left transition-all duration-500">{{ $item['title'] }}</span>
+                        <i class="fa-solid fa-chevron-down text-sm relative z-10 transition-all duration-600 ease-in-out chevron-icon group-hover:text-pink-300"></i>
                     </button>
                     
                     <!-- Submenu -->
                     <div id="{{ $item['id'] }}-submenu" class="submenu pl-6 mt-2 space-y-1 {{ $item['active'] ? '' : 'hidden' }}">
                         @foreach($item['children'] as $child)
                             <a href="{{ $child['url'] }}" 
-                               class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 ease-in-out group relative overflow-hidden transform hover:scale-[1.02] hover:shadow-md {{ $child['active'] ? 'bg-purple-600/80 text-white shadow-md active-submenu scale-[1.02]' : 'text-purple-200 hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-indigo-600/50 hover:text-white' }}">
-                                <div class="absolute inset-0 bg-gradient-to-r from-purple-300/0 to-pink-300/0 group-hover:from-purple-300/5 group-hover:to-pink-300/5 transition-all duration-500"></div>
-                                <i class="{{ $child['icon'] }} text-base relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:text-pink-300"></i>
-                                <span class="relative z-10 transition-all duration-300">{{ $child['title'] }}</span>
+                               class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-500 ease-in-out group relative overflow-hidden transform hover:scale-[1.02] hover:shadow-md {{ $child['active'] ? 'bg-purple-600/80 text-white shadow-md active-submenu scale-[1.02]' : 'text-purple-200 hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-indigo-600/50 hover:text-white' }}">
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-300/0 to-pink-300/0 group-hover:from-purple-300/5 group-hover:to-pink-300/5 transition-all duration-700"></div>
+                                <i class="{{ $child['icon'] }} text-base relative z-10 transition-all duration-500 group-hover:scale-110 group-hover:text-pink-300"></i>
+                                <span class="relative z-10 transition-all duration-500">{{ $child['title'] }}</span>
                                 @if($child['active'])
                                     <div class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
                                 @endif
@@ -117,10 +117,10 @@
             @else
                 <!-- Single Menu Item -->
                 <a href="{{ $item['url'] }}" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ease-in-out group text-sm relative overflow-hidden hover:shadow-lg transform hover:scale-[1.02] {{ $item['active'] ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg active-menu scale-[1.02]' : 'text-purple-100 hover:bg-gradient-to-r hover:from-purple-700/40 hover:to-indigo-700/40 hover:text-white' }}">
-                    <div class="absolute inset-0 bg-gradient-to-r from-purple-400/0 to-pink-400/0 group-hover:from-purple-400/10 group-hover:to-pink-400/10 transition-all duration-500 ease-out"></div>
-                    <i class="{{ $item['icon'] }} text-lg relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:text-pink-300"></i>
-                    <span class="relative z-10 transition-all duration-300">{{ $item['title'] }}</span>
+                   class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out group text-sm relative overflow-hidden hover:shadow-lg transform hover:scale-[1.02] {{ $item['active'] ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg active-menu scale-[1.02]' : 'text-purple-100 hover:bg-gradient-to-r hover:from-purple-700/40 hover:to-indigo-700/40 hover:text-white' }}">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-400/0 to-pink-400/0 group-hover:from-purple-400/10 group-hover:to-pink-400/10 transition-all duration-700 ease-out"></div>
+                    <i class="{{ $item['icon'] }} text-lg relative z-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:text-pink-300"></i>
+                    <span class="relative z-10 transition-all duration-500">{{ $item['title'] }}</span>
                     @if($item['active'])
                         <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
                     @endif
@@ -133,19 +133,19 @@
     <div class="px-4 py-4 border-t border-[#2d3250]/40 mt-auto">
         <!-- Logout Button -->
         <button id="logout-menu" 
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ease-in-out group text-sm relative overflow-hidden text-purple-100 hover:bg-gradient-to-r hover:from-red-500/30 hover:to-pink-500/30 hover:text-red-200 hover:shadow-lg transform hover:scale-[1.02]">
-            <div class="absolute inset-0 bg-gradient-to-r from-red-400/0 to-pink-400/0 group-hover:from-red-400/10 group-hover:to-pink-400/10 transition-all duration-500"></div>
-            <i class="fa-solid fa-arrow-right-from-bracket text-lg relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:text-red-300"></i>
-            <span class="relative z-10 transition-all duration-300">Đăng xuất</span>
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out group text-sm relative overflow-hidden text-purple-100 hover:bg-gradient-to-r hover:from-red-500/30 hover:to-pink-500/30 hover:text-red-200 hover:shadow-lg transform hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-gradient-to-r from-red-400/0 to-pink-400/0 group-hover:from-red-400/10 group-hover:to-pink-400/10 transition-all duration-700"></div>
+            <i class="fa-solid fa-arrow-right-from-bracket text-lg relative z-10 transition-all duration-500 group-hover:scale-110 group-hover:text-red-300"></i>
+            <span class="relative z-10 transition-all duration-500">Đăng xuất</span>
         </button>
         
         <!-- Copyright Footer -->
         <div class="mt-4 pt-3 border-t border-[#2d3250]/30">
             <div class="text-center">
-                <p class="text-xs text-purple-300/60 transition-colors duration-300 hover:text-purple-200">
+                <p class="text-xs text-purple-300/60 transition-colors duration-500 hover:text-purple-200">
                     © 2024 Tiếng Lào
                 </p>
-                <p class="text-xs text-purple-400/50 mt-1 transition-colors duration-300 hover:text-purple-300">
+                <p class="text-xs text-purple-400/50 mt-1 transition-colors duration-500 hover:text-purple-300">
                     Admin Panel v1.0
                 </p>
             </div>
@@ -154,12 +154,12 @@
 </aside>
 
 <!-- Mobile Sidebar Overlay -->
-<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden transition-all duration-300 ease-in-out backdrop-blur-sm"></div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden transition-all duration-500 ease-in-out backdrop-blur-sm"></div>
 
 <!-- Mobile Sidebar Toggle Button -->
 <button id="sidebar-toggle" 
-        class="fixed top-4 left-4 z-50 lg:hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-110 hover:from-purple-700 hover:to-indigo-700">
-    <i class="fa-solid fa-bars text-lg transition-transform duration-300"></i>
+        class="fixed top-4 left-4 z-50 lg:hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 ease-in-out transform hover:scale-110 hover:from-purple-700 hover:to-indigo-700">
+    <i class="fa-solid fa-bars text-lg transition-transform duration-500"></i>
 </button>
 
 <!-- Enhanced Custom Styles for Sidebar -->
@@ -175,35 +175,37 @@
 .scrollbar-thin::-webkit-scrollbar-thumb {
     background: rgba(147, 51, 234, 0.3);
     border-radius: 4px;
-    transition: background 0.3s ease;
+    transition: background 0.5s ease;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(147, 51, 234, 0.6);
 }
 
-/* Enhanced menu item animations with smoother transitions */
+/* Enhanced menu item animations with slower transitions */
 .menu-toggle, nav a {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, box-shadow, background-color;
 }
 
 .menu-toggle:hover, nav a:hover {
-    transform: translateX(4px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3);
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.3);
 }
 
-/* Enhanced active states with better visual feedback */
+/* Enhanced active states with slower visual feedback */
 .active-menu {
     box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
     border: 1px solid rgba(147, 51, 234, 0.3);
     transform: scale(1.02);
+    transition: all 0.5s ease;
 }
 
 .active-submenu {
     box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
     border-left: 3px solid #ec4899;
     transform: scale(1.02);
+    transition: all 0.5s ease;
 }
 
 /* Responsive design improvements */
@@ -215,11 +217,11 @@
     }
 }
 
-/* Submenu animation with enhanced easing */
+/* Submenu animation with slower easing */
 .submenu {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease-in-out;
     opacity: 0;
 }
 
@@ -228,10 +230,11 @@
     opacity: 1;
 }
 
-/* Enhanced chevron rotation with spring effect */
+/* Enhanced chevron rotation with slower spring effect */
 .chevron-rotated {
     transform: rotate(180deg) scale(1.1);
     color: #ec4899;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* Hover ripple effect */
@@ -261,11 +264,12 @@ nav a:focus {
     outline: 2px solid #8b5cf6;
     outline-offset: 2px;
     transform: scale(1.02);
+    transition: all 0.5s ease;
 }
 
 /* Loading state enhancements */
 .sidebar-loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Copyright footer styling */
@@ -273,6 +277,7 @@ nav a:focus {
     background: linear-gradient(135deg, rgba(45, 50, 80, 0.1), rgba(35, 41, 70, 0.2));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    transition: all 0.5s ease;
 }
 </style>
 
@@ -280,11 +285,11 @@ nav a:focus {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Initialize sidebar functionality with enhanced animations
+    // Initialize sidebar functionality with slower animations
     initializeSidebar();
     
     function initializeSidebar() {
-        // Enhanced submenu toggles with smoother animations
+        // Enhanced submenu toggles with slower animations
         $('.menu-toggle').on('click', function() {
             const $button = $(this);
             const submenuId = $button.data('submenu');
@@ -294,35 +299,35 @@ $(document).ready(function() {
             // Add ripple effect
             addRippleEffect($button);
             
-            // Close other open submenus with stagger animation
+            // Close other open submenus with slower stagger animation
             $('.submenu').not($submenu).each(function(index) {
                 const $this = $(this);
                 setTimeout(() => {
-                    $this.removeClass('show').slideUp(250);
-                }, index * 50);
+                    $this.removeClass('show').slideUp(400);
+                }, index * 80);
             });
             $('.chevron-icon').not($chevron).removeClass('chevron-rotated');
             
-            // Toggle current submenu with enhanced animation
+            // Toggle current submenu with slower animation
             if ($submenu.hasClass('show')) {
                 $submenu.removeClass('show');
-                $submenu.slideUp(300, function() {
+                $submenu.slideUp(500, function() {
                     $submenu.css('opacity', '');
                 });
                 $chevron.removeClass('chevron-rotated');
             } else {
                 $submenu.addClass('show');
-                $submenu.slideDown(350, function() {
+                $submenu.slideDown(600, function() {
                     $submenu.css('opacity', '1');
                 });
                 $chevron.addClass('chevron-rotated');
             }
         });
         
-        // Enhanced mobile sidebar toggle
+        // Enhanced mobile sidebar toggle with slower animation
         $('#sidebar-toggle').on('click', function() {
             $(this).addClass('animate-pulse');
-            setTimeout(() => $(this).removeClass('animate-pulse'), 200);
+            setTimeout(() => $(this).removeClass('animate-pulse'), 300);
             toggleMobileSidebar();
         });
         
@@ -346,7 +351,7 @@ $(document).ready(function() {
                 if (window.innerWidth >= 1024) {
                     closeMobileSidebar();
                 }
-            }, 100);
+            }, 150);
         });
         
         // Initialize active submenu states
@@ -368,7 +373,7 @@ $(document).ready(function() {
     
     function addRippleEffect($element) {
         $element.addClass('menu-ripple');
-        setTimeout(() => $element.removeClass('menu-ripple'), 600);
+        setTimeout(() => $element.removeClass('menu-ripple'), 800);
     }
     
     function toggleMobileSidebar() {
@@ -376,14 +381,14 @@ $(document).ready(function() {
         const $overlay = $('#sidebar-overlay');
         
         if ($sidebar.hasClass('-translate-x-full')) {
-            // Show sidebar with enhanced animation
+            // Show sidebar with slower animation
             $sidebar.removeClass('-translate-x-full');
-            $overlay.removeClass('hidden').fadeIn(400);
+            $overlay.removeClass('hidden').fadeIn(600);
             $sidebar.css('transform', 'translateX(0)');
         } else {
-            // Hide sidebar with enhanced animation
+            // Hide sidebar with slower animation
             $sidebar.addClass('-translate-x-full');
-            $overlay.fadeOut(400, function() {
+            $overlay.fadeOut(600, function() {
                 $(this).addClass('hidden');
             });
         }
@@ -394,19 +399,21 @@ $(document).ready(function() {
         const $overlay = $('#sidebar-overlay');
         
         $sidebar.addClass('-translate-x-full');
-        $overlay.fadeOut(400, function() {
+        $overlay.fadeOut(600, function() {
             $(this).addClass('hidden');
         });
     }
     
     function addEnhancedHoverEffects() {
-        // Enhanced hover animations for menu items
+        // Enhanced hover animations for menu items with slower timing
         $('.menu-toggle, nav a').on('mouseenter', function() {
             $(this).addClass('animate-pulse');
             $(this).find('i').addClass('animate-bounce');
         }).on('mouseleave', function() {
-            $(this).removeClass('animate-pulse');
-            $(this).find('i').removeClass('animate-bounce');
+            setTimeout(() => {
+                $(this).removeClass('animate-pulse');
+                $(this).find('i').removeClass('animate-bounce');
+            }, 200);
         });
         
         // Smooth scroll behavior for sidebar
@@ -420,7 +427,7 @@ $(document).ready(function() {
                 e.preventDefault();
             }
             
-            this.scrollTop += delta * 0.8; // Smooth scrolling
+            this.scrollTop += delta * 0.6; // Slower smooth scrolling
             e.preventDefault();
         });
     }
@@ -429,22 +436,24 @@ $(document).ready(function() {
     function updateActiveStates() {
         const currentPath = window.location.pathname;
         
-        // Remove all active states
+        // Remove all active states with animation
         $('.active-menu, .active-submenu').removeClass('active-menu active-submenu');
         
-        // Add active state to matching menu items with animation
+        // Add active state to matching menu items with slower animation
         $('nav a').each(function() {
             const $link = $(this);
             const href = $link.attr('href');
             
             if (href === currentPath || (href !== '#' && currentPath.startsWith(href))) {
-                $link.addClass('active-submenu');
-                
-                // If it's in a submenu, also mark parent as active
-                const $parentGroup = $link.closest('.menu-group');
-                if ($parentGroup.length) {
-                    $parentGroup.find('.menu-toggle').addClass('active-menu');
-                }
+                setTimeout(() => {
+                    $link.addClass('active-submenu');
+                    
+                    // If it's in a submenu, also mark parent as active
+                    const $parentGroup = $link.closest('.menu-group');
+                    if ($parentGroup.length) {
+                        $parentGroup.find('.menu-toggle').addClass('active-menu');
+                    }
+                }, 100);
             }
         });
     }
