@@ -77,6 +77,29 @@ jobs:
           composer require stripe/stripe-php --no-interaction
         fi
 
+    - name: Validate .env.example format
+      run: |
+        echo "🔍 Validating .env.example format..."
+        # Check for proper line endings
+        if [ "$(tail -c1 .env.example | wc -l)" -eq 0 ]; then
+          echo "Adding missing newline to .env.example"
+          echo "" >> .env.example
+        fi
+        
+        # Test basic parsing
+        php -r "
+        \$lines = file('.env.example', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach (\$lines as \$line_num => \$line) {
+          \$line = trim(\$line);
+          if (empty(\$line) || \$line[0] === '#') continue;
+          if (strpos(\$line, '=') === false) {
+            echo 'Invalid line ' . (\$line_num + 1) . ': ' . \$line . PHP_EOL;
+            exit(1);
+          }
+        }
+        echo '.env.example format is valid' . PHP_EOL;
+        "
+
     - name: Copy environment file
       run: cp .env.example .env
 
