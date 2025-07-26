@@ -18,9 +18,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
+        'is_admin',
+        'stripe_customer_id',
+        'subscription_status',
+        'subscription_ends_at'
     ];
 
     /**
@@ -43,6 +47,48 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
+            'subscription_ends_at' => 'datetime',
         ];
+    }
+
+    // Primary key setting
+    protected $primaryKey = 'username';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    // Subscription relationships
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class, 'username', 'username');
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class, 'username', 'username')
+                    ->where('status', 'active')
+                    ->where('current_period_end', '>', now());
+    }
+
+    // Subscription helper methods
+    public function hasActiveSubscription()
+    {
+        return $this->subscription_status === 'active' && 
+               $this->subscription_ends_at && 
+               $this->subscription_ends_at->isFuture();
+    }
+
+    public function isPremiumMember()
+    {
+        return $this->hasActiveSubscription();
+    }
+
+    public function getSubscriptionDaysRemainingAttribute()
+    {
+        if (!$this->subscription_ends_at) {
+            return 0;
+        }
+        
+        return max(0, $this->subscription_ends_at->diffInDays(now()));
     }
 }
