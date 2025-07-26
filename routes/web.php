@@ -91,6 +91,9 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/badges/revoke', [BadgeController::class, 'apiRevokeBadge']);
 });
 
+// Include API routes
+require __DIR__.'/api.php';
+
 // Route xem coverage report (chỉ nên dùng cho dev)
 Route::get('/coverage/{file?}', function ($file = null) {
     $path = public_path('coverage/' . ($file ?: 'index.html'));
