@@ -35,7 +35,7 @@
                     'active' => request()->is('admin/lessons'),
                 ],
                 [
-                    'title' => 'Cài đặt trò chơi theo bài học',
+                    'title' => 'Trò chơi theo bài học',
                     'icon' => 'fa-solid fa-gamepad',
                     'url' => '/admin/lesson-games',
                     'active' => request()->is('admin/lesson-games'),
