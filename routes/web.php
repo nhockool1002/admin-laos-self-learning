@@ -83,6 +83,19 @@ Route::get('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 's
 Route::put('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 'updateGroup']);
 Route::delete('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 'deleteGroup']);
 
+// Debug route for game groups (remove after testing)
+Route::get('/debug/game-groups', function() {
+    $supabase = new App\Services\SupabaseService();
+    return response()->json([
+        'type_a_groups' => $supabase->getGameGroups(),
+        'type_b_groups' => $supabase->getLessonGameGroups(),
+        'all_groups_raw' => Http::withHeaders([
+            'apikey' => config('services.supabase.anon_key'),
+            'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
+        ])->get(config('services.supabase.url') . '/rest/v1/game_groups')->json()
+    ]);
+});
+
 // Badge management routes
 Route::get('/supabase/badges', [BadgeController::class, 'index']);
 Route::post('/supabase/badges', [BadgeController::class, 'store']);

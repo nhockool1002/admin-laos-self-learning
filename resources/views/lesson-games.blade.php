@@ -28,10 +28,15 @@
                 <div id="groups-content" class="tab-content">
                     <div class="table-card w-full h-full flex flex-col">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full mb-4">
-                            <button id="btn-add-group" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-6 py-2 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                Thêm nhóm trò chơi
-                            </button>
+                            <div class="flex gap-2">
+                                <button id="btn-add-group" class="bg-gradient-to-r from-purple-400 to-pink-400 text-[#232946] font-bold px-6 py-2 rounded-xl shadow hover:from-pink-400 hover:to-purple-400 transition flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    Thêm nhóm trò chơi
+                                </button>
+                                <button id="btn-debug-groups" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                                    Debug Groups
+                                </button>
+                            </div>
                             <input id="search-groups" type="text" placeholder="Tìm kiếm nhóm..." class="ml-auto px-3 py-2 rounded bg-[#2d3250] text-white w-60 focus:outline-none focus:ring-2 focus:ring-purple-400" />
                         </div>
                         <div class="overflow-x-auto w-full">
@@ -175,22 +180,72 @@ function switchTab(tab) {
 
 // Groups functionality
 function fetchGroups() {
-    fetch(API_GROUPS, { headers: { 'Authorization': token, 'User': JSON.stringify(user) } })
+    console.log('Fetching lesson game groups (Type B) from:', API_GROUPS);
+    
+    // Add cache busting parameter
+    const cacheBuster = '?t=' + Date.now();
+    
+    fetch(API_GROUPS + cacheBuster, { 
+        headers: { 
+            'Authorization': token, 
+            'User': JSON.stringify(user),
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        } 
+    })
         .then(res => res.json())
         .then(data => {
+            console.log('Received lesson game groups:', data);
             groupsData = data || [];
+            
+            // Verify that all groups are Type B
+            const typeBGroups = groupsData.filter(g => !g.group_game_type || g.group_game_type === 'B');
+            const typeAGroups = groupsData.filter(g => g.group_game_type === 'A');
+            
+            console.log(`Groups breakdown: Type B: ${typeBGroups.length}, Type A: ${typeAGroups.length}, Total: ${groupsData.length}`);
+            
+            if (typeAGroups.length > 0) {
+                console.error('⚠️ WARNING: Found Type A groups in lesson game groups endpoint!', typeAGroups);
+                showToast('Cảnh báo: Phát hiện nhóm Type A trong danh sách nhóm bài học!', 'failed');
+            }
+            
+            if (typeBGroups.length !== groupsData.length) {
+                console.warn('Warning: Some groups are not Type B!', groupsData);
+            }
+            
             renderGroupsTable(groupsData);
             updateGameGroupSelect();
+        })
+        .catch(error => {
+            console.error('Error fetching lesson game groups:', error);
+            showToast('Lỗi tải danh sách nhóm trò chơi!', 'failed');
         });
 }
 
 function renderGroupsTable(data) {
     const listEl = document.getElementById('groups-list');
     listEl.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td colspan="3" class="table-cell text-center text-gray-400 py-8">
+                <div class="flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-3xl mb-2"></i>
+                    <p>Chưa có nhóm trò chơi theo bài học (Type B)</p>
+                    <p class="text-sm">Hãy tạo nhóm trò chơi mới để bắt đầu</p>
+                </div>
+            </td>
+        `;
+        tr.classList.add('table-row');
+        listEl.appendChild(tr);
+        return;
+    }
+    
     (data || []).forEach(group => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="table-cell">${group.name}</td>
+            <td class="table-cell">${group.name} <span class="text-xs text-blue-400">(Type: ${group.group_game_type || 'B'})</span></td>
             <td class="table-cell">${group.description || ''}</td>
             <td class="table-cell">
                 <button onclick="editGroup('${group.id}')" class="table-action-edit text-yellow-400 mr-2">Sửa</button>
@@ -205,12 +260,26 @@ function renderGroupsTable(data) {
 function updateGameGroupSelect() {
     const groupSelect = document.getElementById('game-group');
     groupSelect.innerHTML = '<option value="">-- Chọn nhóm --</option>';
-    groupsData.forEach(g => {
+    console.log('Updating game group dropdown with groups:', groupsData);
+    
+    // Filter to ensure only Type B groups
+    const typeBGroups = groupsData.filter(g => !g.group_game_type || g.group_game_type === 'B');
+    console.log('Filtered Type B groups for dropdown:', typeBGroups);
+    
+    typeBGroups.forEach(g => {
         const opt = document.createElement('option');
         opt.value = g.id;
-        opt.textContent = g.name;
+        opt.textContent = `${g.name} (Type: ${g.group_game_type || 'B'})`;
         groupSelect.appendChild(opt);
     });
+    
+    if (typeBGroups.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '-- Chưa có nhóm trò chơi Type B --';
+        opt.disabled = true;
+        groupSelect.appendChild(opt);
+    }
 }
 
 window.editGroup = function(id) {
@@ -254,11 +323,28 @@ function fetchGames() {
 function renderGamesTable(data) {
     const listEl = document.getElementById('games-list');
     listEl.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td colspan="5" class="table-cell text-center text-gray-400 py-8">
+                <div class="flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-3xl mb-2"></i>
+                    <p>Chưa có trò chơi theo bài học (Type B)</p>
+                    <p class="text-sm">Hãy tạo nhóm trò chơi trước, sau đó thêm trò chơi</p>
+                </div>
+            </td>
+        `;
+        tr.classList.add('table-row');
+        listEl.appendChild(tr);
+        return;
+    }
+    
     (data || []).forEach(game => {
         const group = groupsData.find(g => g.id === game.group_id);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="table-cell">${game.title}</td>
+            <td class="table-cell">${game.title} <span class="text-xs text-green-400">(Type: ${game.game_type || 'B'})</span></td>
             <td class="table-cell">${game.description || ''}</td>
             <td class="table-cell">${group ? group.name : ''}</td>
             <td class="table-cell"><a href="${game.embed_url}" target="_blank" class="text-blue-400 underline">Link</a></td>
@@ -381,6 +467,43 @@ function showToast(message, type = 'success') {
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 2500);
 }
+
+// Debug functionality
+document.getElementById('btn-debug-groups').onclick = async () => {
+    try {
+        console.log('=== DEBUG: Fetching all game groups ===');
+        
+        // Test debug endpoint
+        const debugResponse = await fetch('/debug/game-groups');
+        const debugData = await debugResponse.json();
+        
+        console.log('Debug data:', debugData);
+        console.log('Type A groups:', debugData.type_a_groups);
+        console.log('Type B groups:', debugData.type_b_groups);
+        console.log('All groups (raw):', debugData.all_groups_raw);
+        
+        // Test direct API calls
+        console.log('=== Testing direct API calls ===');
+        
+        const typeAResponse = await fetch('/supabase/game-groups', { 
+            headers: { 'Authorization': token, 'User': JSON.stringify(user) } 
+        });
+        const typeAData = await typeAResponse.json();
+        console.log('Type A API response:', typeAData);
+        
+        const typeBResponse = await fetch('/supabase/lesson-game-groups', { 
+            headers: { 'Authorization': token, 'User': JSON.stringify(user) } 
+        });
+        const typeBData = await typeBResponse.json();
+        console.log('Type B API response:', typeBData);
+        
+        alert(`Debug completed! Check console.\nType A: ${typeAData?.length || 0} groups\nType B: ${typeBData?.length || 0} groups`);
+        
+    } catch (error) {
+        console.error('Debug error:', error);
+        alert('Debug error: ' + error.message);
+    }
+};
 
 // Initialize
 switchTab('groups');
