@@ -86,14 +86,79 @@ Route::delete('/supabase/lesson-game-groups/{id}', [LessonGameController::class,
 // Debug route for game groups (remove after testing)
 Route::get('/debug/game-groups', function() {
     $supabase = new App\Services\SupabaseService();
+    
+    // Get raw data to check schema
+    $rawResponse = Http::withHeaders([
+        'apikey' => config('services.supabase.anon_key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
+    ])->get(config('services.supabase.url') . '/rest/v1/game_groups');
+    
+    $rawData = $rawResponse->json();
+    
+    // Check if group_game_type column exists
+    $hasGroupGameType = !empty($rawData) && isset($rawData[0]['group_game_type']);
+    
+    // Test individual filters
+    $testTypeA = Http::withHeaders([
+        'apikey' => config('services.supabase.anon_key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
+    ])->get(config('services.supabase.url') . '/rest/v1/game_groups?group_game_type=eq.A')->json();
+    
+    $testTypeB = Http::withHeaders([
+        'apikey' => config('services.supabase.anon_key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
+    ])->get(config('services.supabase.url') . '/rest/v1/game_groups?group_game_type=eq.B')->json();
+    
     return response()->json([
-        'type_a_groups' => $supabase->getGameGroups(),
-        'type_b_groups' => $supabase->getLessonGameGroups(),
-        'all_groups_raw' => Http::withHeaders([
+        'schema_check' => [
+            'has_group_game_type_column' => $hasGroupGameType,
+            'total_groups' => count($rawData),
+            'sample_group' => $rawData[0] ?? null,
+        ],
+        'service_calls' => [
+            'type_a_groups' => $supabase->getGameGroups(),
+            'type_b_groups' => $supabase->getLessonGameGroups(),
+        ],
+        'direct_api_tests' => [
+            'all_groups_raw' => $rawData,
+            'type_a_filter_test' => $testTypeA,
+            'type_b_filter_test' => $testTypeB,
+        ]
+    ]);
+});
+
+// Simple test route to verify database schema
+Route::get('/test/database-schema', function() {
+    try {
+        // Test if group_game_type column exists by trying to query it
+        $result = Http::withHeaders([
             'apikey' => config('services.supabase.anon_key'),
             'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
-        ])->get(config('services.supabase.url') . '/rest/v1/game_groups')->json()
-    ]);
+        ])->get(config('services.supabase.url') . '/rest/v1/game_groups?select=id,name,group_game_type&limit=1');
+        
+        if ($result->successful()) {
+            $data = $result->json();
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'group_game_type column exists',
+                'sample_data' => $data[0] ?? null,
+                'has_group_game_type' => isset($data[0]['group_game_type'])
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => 'Query failed',
+                'error' => $result->body(),
+                'status_code' => $result->status()
+            ]);
+        }
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'EXCEPTION',
+            'message' => 'Column might not exist',
+            'error' => $e->getMessage()
+        ]);
+    }
 });
 
 // Badge management routes

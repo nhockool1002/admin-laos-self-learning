@@ -556,7 +556,28 @@ class SupabaseService
         // Filter for lesson game groups (type B only)
         $params['group_game_type'] = 'eq.B';
         $this->logRequest('LessonGameGroups', 'GET', '/game_groups', $params);
+        
+        // Debug: Log the full URL and parameters
+        $fullUrl = $this->baseUrl . '/game_groups?' . http_build_query($params);
+        Log::debug('Full Supabase URL for lesson game groups:', ['url' => $fullUrl, 'params' => $params]);
+        
         $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/game_groups', $params);
+        
+        // Debug: Log response
+        if ($response->successful()) {
+            $data = $response->json();
+            Log::debug('Lesson game groups response:', [
+                'count' => count($data),
+                'data' => $data,
+                'first_item_type' => isset($data[0]['group_game_type']) ? $data[0]['group_game_type'] : 'not_set'
+            ]);
+        } else {
+            Log::error('Lesson game groups request failed:', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+        }
+        
         $this->logResponse('LessonGameGroups', $response, 'GET /game_groups (lesson game groups) completed');
         return $response->successful() ? $response->json() : null;
     }
