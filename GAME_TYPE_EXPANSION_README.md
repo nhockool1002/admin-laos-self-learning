@@ -20,11 +20,18 @@ ADD COLUMN game_type character(1) NOT NULL DEFAULT 'A'
 CHECK (game_type IN ('A', 'B'));
 
 COMMENT ON COLUMN public.flash_games.game_type IS 'Game type: A = General games (managed in game management), B = Lesson-specific games (managed in lesson game settings)';
+
+-- Add group_game_type column to game_groups table
+ALTER TABLE public.game_groups 
+ADD COLUMN group_game_type character(1) NOT NULL DEFAULT 'A' 
+CHECK (group_game_type IN ('A', 'B'));
+
+COMMENT ON COLUMN public.game_groups.group_game_type IS 'Group game type: A = General game groups (managed in game management), B = Lesson-specific game groups (managed in lesson game settings)';
 ```
 
 ### 2. Data Migration
 
-All existing games will automatically be set to type 'A' (general games) due to the DEFAULT value.
+All existing games and game groups will automatically be set to type 'A' (general games/groups) due to the DEFAULT value.
 
 ## Backend Implementation
 
@@ -32,10 +39,12 @@ All existing games will automatically be set to type 'A' (general games) due to 
 
 **SupabaseService.php** - Enhanced with:
 
-- Modified existing methods to filter for type 'A' games only
+- Modified existing methods to filter for type 'A' games and game groups only
 - Added new methods for lesson games (type 'B'):
   - `getLessonGames()`, `createLessonGame()`, `updateLessonGame()`, `deleteLessonGame()`
   - `getLessonGameGroups()`, `createLessonGameGroup()`, `updateLessonGameGroup()`, `deleteLessonGameGroup()`
+- All game group operations now include `group_game_type` filtering
+- Complete separation between Type A and Type B game groups
 
 ### 2. Controller Implementation
 
@@ -86,32 +95,35 @@ Route::delete('/supabase/lesson-game-groups/{id}', [LessonGameController::class,
 
 ### 1. Separation of Concerns
 
-- **Existing Game Management**: Only shows/manages Type A games
-- **Lesson Game Settings**: Only shows/manages Type B games
-- Both use the same underlying database tables but with type filtering
+- **Existing Game Management**: Only shows/manages Type A games and Type A game groups
+- **Lesson Game Settings**: Only shows/manages Type B games and Type B game groups
+- Both use the same underlying database tables but with complete type filtering
+- Game groups are now also separated by type, preventing cross-contamination
 
 ### 2. Hidden Field Implementation
 
-- Game type is automatically set based on the management interface used
-- Users cannot manually change game types through the UI
-- Type A games can only be modified through existing game management
-- Type B games can only be modified through lesson game settings
+- Game type and group game type are automatically set based on the management interface used
+- Users cannot manually change game types or group game types through the UI
+- Type A games and groups can only be modified through existing game management
+- Type B games and groups can only be modified through lesson game settings
+- Complete isolation ensures data integrity between the two systems
 
 ### 3. Backward Compatibility
 
-- All existing games remain as Type A by default
+- All existing games and game groups remain as Type A by default
 - Existing game management functionality is unchanged
 - No impact on current game data or workflows
+- Complete backward compatibility for both games and game groups
 
 ## API Endpoints
 
 ### Existing Game Management (Type A)
 - `/supabase/games` - Now filtered to show only Type A games
-- `/supabase/game-groups` - Unchanged (groups are shared)
+- `/supabase/game-groups` - Now filtered to show only Type A game groups
 
 ### Lesson Game Management (Type B)
 - `/supabase/lesson-games` - CRUD for Type B games
-- `/supabase/lesson-game-groups` - CRUD for game groups (same as regular groups)
+- `/supabase/lesson-game-groups` - CRUD for Type B game groups
 
 ## Usage Instructions
 
@@ -129,22 +141,23 @@ psql -d your_database -f database/migrations/add_game_type_to_flash_games.sql
 1. Navigate to admin panel
 2. Go to "Quản lý Khoá học" → "Cài đặt trò chơi theo bài học"
 3. Use the tab interface to manage:
-   - **Nhóm trò chơi**: Create/edit game groups for lessons
-   - **Trò chơi**: Create/edit lesson-specific games
+   - **Nhóm trò chơi**: Create/edit Type B game groups for lessons
+   - **Trò chơi**: Create/edit Type B lesson-specific games
 
 ### 3. Game Type Behavior
 
-- **Type A games**: Managed through existing "Quản lý trò chơi" section
-- **Type B games**: Managed through new "Cài đặt trò chơi theo bài học" section
-- Games cannot be moved between types through the UI
-- Both types can use the same game groups
+- **Type A games and groups**: Managed through existing "Quản lý trò chơi" section
+- **Type B games and groups**: Managed through new "Cài đặt trò chơi theo bài học" section
+- Games and groups cannot be moved between types through the UI
+- Complete separation: Type A games can only use Type A groups, Type B games can only use Type B groups
 
 ## Testing
 
-1. Verify existing game management still works (shows only Type A games)
-2. Create new lesson games through the new interface (should be Type B)
-3. Verify separation: Type A and Type B games should not appear in each other's management interfaces
-4. Test all CRUD operations for both types
+1. Verify existing game management still works (shows only Type A games and Type A groups)
+2. Create new lesson games and groups through the new interface (should be Type B)
+3. Verify separation: Type A and Type B games/groups should not appear in each other's management interfaces
+4. Verify that Type B games can only select Type B groups in dropdowns
+5. Test all CRUD operations for both types (games and groups)
 
 ## File Changes Summary
 
