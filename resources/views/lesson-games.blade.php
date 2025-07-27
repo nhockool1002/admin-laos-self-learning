@@ -36,6 +36,9 @@
                                 <button id="btn-debug-groups" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
                                     Debug Groups
                                 </button>
+                                <button id="btn-test-create" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">
+                                    Test Create
+                                </button>
                             </div>
                             <input id="search-groups" type="text" placeholder="Tìm kiếm nhóm..." class="ml-auto px-3 py-2 rounded bg-[#2d3250] text-white w-60 focus:outline-none focus:ring-2 focus:ring-purple-400" />
                         </div>
@@ -423,15 +426,31 @@ document.getElementById('group-form').onsubmit = function(e) {
     let method = editingGroupId ? 'PUT' : 'POST';
     let url = editingGroupId ? `${API_GROUPS}/${editingGroupId}` : API_GROUPS;
     
+    console.log('=== LESSON GROUP FORM SUBMISSION ===');
+    console.log('Method:', method);
+    console.log('URL:', url);
+    console.log('Data being sent:', data);
+    console.log('Expected: group_game_type should be auto-set to B by backend');
+    
     fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': token, 'User': JSON.stringify(user), 'X-CSRF-TOKEN': getCsrfToken() },
         body: JSON.stringify(data)
-    }).then(() => {
+    }).then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    }).then(responseData => {
+        console.log('Response data:', responseData);
+        if (responseData.group_game_type) {
+            console.log('✅ group_game_type in response:', responseData.group_game_type);
+        } else {
+            console.error('❌ group_game_type missing in response!', responseData);
+        }
         showToast('Lưu nhóm thành công!', 'success');
         document.getElementById('group-modal').classList.add('hidden');
         fetchGroups();
-    }).catch(() => {
+    }).catch(error => {
+        console.error('Error creating group:', error);
         showToast('Lưu nhóm thất bại!', 'failed');
     });
 };
@@ -502,6 +521,35 @@ document.getElementById('btn-debug-groups').onclick = async () => {
     } catch (error) {
         console.error('Debug error:', error);
         alert('Debug error: ' + error.message);
+    }
+};
+
+// Test create button
+document.getElementById('btn-test-create').onclick = async () => {
+    try {
+        console.log('=== TESTING DIRECT GROUP CREATION ===');
+        
+        const testResponse = await fetch('/test/create-lesson-group', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            }
+        });
+        
+        const testData = await testResponse.json();
+        console.log('Test create response:', testData);
+        
+        if (testData.status === 'SUCCESS') {
+            alert('✅ Test successful! Check console for details.');
+            fetchGroups(); // Refresh the list
+        } else {
+            alert('❌ Test failed! Check console for details.');
+        }
+        
+    } catch (error) {
+        console.error('Test error:', error);
+        alert('Test error: ' + error.message);
     }
 };
 

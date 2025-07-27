@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\SupabaseUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
@@ -125,6 +128,48 @@ Route::get('/debug/game-groups', function() {
             'type_b_filter_test' => $testTypeB,
         ]
     ]);
+});
+
+// Test endpoint to debug lesson game group creation
+Route::post('/test/create-lesson-group', function(Request $request) {
+    try {
+        $data = [
+            'name' => 'Test Lesson Group ' . time(),
+            'description' => 'Test description',
+            'group_game_type' => 'B'
+        ];
+        
+        Log::info('Testing lesson group creation', ['data' => $data]);
+        
+        // Test direct Supabase call
+        $response = Http::withHeaders([
+            'apikey' => config('services.supabase.anon_key'),
+            'Authorization' => 'Bearer ' . config('services.supabase.anon_key'),
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ])->post(config('services.supabase.url') . '/rest/v1/game_groups', $data);
+        
+        Log::info('Direct Supabase response', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'success' => $response->successful()
+        ]);
+        
+        return response()->json([
+            'status' => $response->successful() ? 'SUCCESS' : 'ERROR',
+            'supabase_status' => $response->status(),
+            'data_sent' => $data,
+            'response_body' => $response->json(),
+            'error' => $response->successful() ? null : $response->body()
+        ]);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'EXCEPTION',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
 });
 
 // Simple test route to verify database schema
