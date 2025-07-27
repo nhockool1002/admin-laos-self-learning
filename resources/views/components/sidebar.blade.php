@@ -20,7 +20,7 @@
             'title' => 'Quản lý Khoá học',
             'icon' => 'fa-solid fa-book',
             'url' => '#',
-            'active' => request()->is('admin/courses*') || request()->is('admin/lessons*'),
+            'active' => request()->is('admin/courses*') || request()->is('admin/lessons*') || request()->is('admin/lesson-games*'),
             'children' => [
                 [
                     'title' => 'Quản lý khoá học',
@@ -33,6 +33,12 @@
                     'icon' => 'fa-solid fa-pen-to-square',
                     'url' => '/admin/lessons',
                     'active' => request()->is('admin/lessons'),
+                ],
+                [
+                    'title' => 'Cài đặt trò chơi theo bài học',
+                    'icon' => 'fa-solid fa-gamepad',
+                    'url' => '/admin/lesson-games',
+                    'active' => request()->is('admin/lesson-games'),
                 ],
             ]
         ],

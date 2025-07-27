@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\BadgeController;
+use App\Http\Controllers\LessonGameController;
 
 Route::get('/', function () {
     return view('admin');
@@ -41,6 +42,7 @@ Route::get('/admin/users', function () {
 
 Route::get('/admin/courses', function () { return view('courses'); });
 Route::get('/admin/lessons', function () { return view('lessons'); });
+Route::get('/admin/lesson-games', function () { return view('lesson-games'); });
 Route::get('/admin/games', function () { return view('games'); });
 Route::get('/admin/game-groups', function () { return view('game-groups'); });
 Route::get('/admin/badges', function () { return view('badges'); });
@@ -67,6 +69,19 @@ Route::post('/supabase/game-groups', [GameController::class, 'createGroup']);
 Route::get('/supabase/game-groups/{id}', [GameController::class, 'showGroup']);
 Route::put('/supabase/game-groups/{id}', [GameController::class, 'updateGroup']);
 Route::delete('/supabase/game-groups/{id}', [GameController::class, 'deleteGroup']);
+
+// Lesson game management routes
+Route::get('/supabase/lesson-games', [LessonGameController::class, 'index']);
+Route::post('/supabase/lesson-games', [LessonGameController::class, 'store']);
+Route::get('/supabase/lesson-games/{id}', [LessonGameController::class, 'show']);
+Route::put('/supabase/lesson-games/{id}', [LessonGameController::class, 'update']);
+Route::delete('/supabase/lesson-games/{id}', [LessonGameController::class, 'destroy']);
+
+Route::get('/supabase/lesson-game-groups', [LessonGameController::class, 'listGroups']);
+Route::post('/supabase/lesson-game-groups', [LessonGameController::class, 'createGroup']);
+Route::get('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 'showGroup']);
+Route::put('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 'updateGroup']);
+Route::delete('/supabase/lesson-game-groups/{id}', [LessonGameController::class, 'deleteGroup']);
 
 // Badge management routes
 Route::get('/supabase/badges', [BadgeController::class, 'index']);

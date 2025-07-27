@@ -398,6 +398,8 @@ class SupabaseService
     // ================= FLASH GAMES =================
     public function getFlashGames($params = [])
     {
+        // Add game_type filter for existing game management (type A only)
+        $params['game_type'] = 'eq.A';
         $this->logRequest('FlashGames', 'GET', '/flash_games', $params);
         $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/flash_games', $params);
         $this->logResponse('FlashGames', $response, 'GET /flash_games completed');
@@ -431,6 +433,8 @@ class SupabaseService
 
     public function createFlashGame($data)
     {
+        // Set game_type to 'A' for existing game management
+        $data['game_type'] = 'A';
         $this->logRequest('FlashGames', 'POST', '/flash_games', [], $data);
         $response = Http::withHeaders($this->headers([
             'Content-Type' => 'application/json',
@@ -460,6 +464,138 @@ class SupabaseService
             'Prefer' => 'return=representation',
         ]))->delete($this->baseUrl . '/flash_games?id=eq.' . $id);
         $this->logResponse('FlashGames', $response, "DELETE /flash_games for id '{$id}' completed");
+        return $response->successful();
+    }
+
+    // ================= LESSON GAMES (Type B) =================
+    public function getLessonGames($params = [])
+    {
+        // Filter for lesson games (type B only)
+        $params['game_type'] = 'eq.B';
+        $this->logRequest('LessonGames', 'GET', '/flash_games', $params);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/flash_games', $params);
+        $this->logResponse('LessonGames', $response, 'GET /flash_games (lesson games) completed');
+        return $response->successful() ? $response->json() : null;
+    }
+
+    public function getLessonGameById($id)
+    {
+        $params = [
+            'id' => 'eq.' . $id,
+            'game_type' => 'eq.B',
+            'select' => '*',
+        ];
+        $this->logRequest('LessonGames', 'GET', '/flash_games', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/flash_games', $params);
+        $data = $response->successful() ? $response->json() : null;
+        $this->logResponse('LessonGames', $response, "GET /flash_games (lesson game) by id '{$id}' completed");
+        return $data[0] ?? null;
+    }
+
+    public function getLessonGamesByGroup($group_id)
+    {
+        $params = [
+            'group_id' => 'eq.' . $group_id,
+            'game_type' => 'eq.B',
+            'select' => '*',
+        ];
+        $this->logRequest('LessonGames', 'GET', '/flash_games', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/flash_games', $params);
+        $this->logResponse('LessonGames', $response, "GET /flash_games (lesson games) by group_id '{$group_id}' completed");
+        return $response->successful() ? $response->json() : null;
+    }
+
+    public function createLessonGame($data)
+    {
+        // Set game_type to 'B' for lesson games
+        $data['game_type'] = 'B';
+        $this->logRequest('LessonGames', 'POST', '/flash_games', [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->post($this->baseUrl . '/flash_games', $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('LessonGames', $response, 'POST /flash_games (lesson game) completed');
+        return $result;
+    }
+
+    public function updateLessonGame($id, $data)
+    {
+        // Ensure game_type remains 'B' for lesson games
+        $data['game_type'] = 'B';
+        $this->logRequest('LessonGames', 'PATCH', "/flash_games?id=eq.{$id}", [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->patch($this->baseUrl . '/flash_games?id=eq.' . $id . '&game_type=eq.B', $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('LessonGames', $response, "PATCH /flash_games (lesson game) for id '{$id}' completed");
+        return $result;
+    }
+
+    public function deleteLessonGame($id)
+    {
+        $this->logRequest('LessonGames', 'DELETE', "/flash_games?id=eq.{$id}&game_type=eq.B", [], null);
+        $response = Http::withHeaders($this->headers([
+            'Prefer' => 'return=representation',
+        ]))->delete($this->baseUrl . '/flash_games?id=eq.' . $id . '&game_type=eq.B');
+        $this->logResponse('LessonGames', $response, "DELETE /flash_games (lesson game) for id '{$id}' completed");
+        return $response->successful();
+    }
+
+    // ================= LESSON GAME GROUPS (Type B Groups) =================
+    public function getLessonGameGroups($params = [])
+    {
+        $this->logRequest('LessonGameGroups', 'GET', '/game_groups', $params);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/game_groups', $params);
+        $this->logResponse('LessonGameGroups', $response, 'GET /game_groups (lesson game groups) completed');
+        return $response->successful() ? $response->json() : null;
+    }
+
+    public function getLessonGameGroupById($id)
+    {
+        $params = [
+            'id' => 'eq.' . $id,
+            'select' => '*',
+        ];
+        $this->logRequest('LessonGameGroups', 'GET', '/game_groups', $params, null);
+        $response = Http::withHeaders($this->headers())->get($this->baseUrl . '/game_groups', $params);
+        $data = $response->successful() ? $response->json() : null;
+        $this->logResponse('LessonGameGroups', $response, "GET /game_groups (lesson game group) by id '{$id}' completed");
+        return $data[0] ?? null;
+    }
+
+    public function createLessonGameGroup($data)
+    {
+        $this->logRequest('LessonGameGroups', 'POST', '/game_groups', [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->post($this->baseUrl . '/game_groups', $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('LessonGameGroups', $response, 'POST /game_groups (lesson game group) completed');
+        return $result;
+    }
+
+    public function updateLessonGameGroup($id, $data)
+    {
+        $this->logRequest('LessonGameGroups', 'PATCH', "/game_groups?id=eq.{$id}", [], $data);
+        $response = Http::withHeaders($this->headers([
+            'Content-Type' => 'application/json',
+            'Prefer' => 'return=representation',
+        ]))->patch($this->baseUrl . '/game_groups?id=eq.' . $id, $data);
+        $result = $response->successful() ? ($response->json()[0] ?? null) : null;
+        $this->logResponse('LessonGameGroups', $response, "PATCH /game_groups (lesson game group) for id '{$id}' completed");
+        return $result;
+    }
+
+    public function deleteLessonGameGroup($id)
+    {
+        $this->logRequest('LessonGameGroups', 'DELETE', "/game_groups?id=eq.{$id}", [], null);
+        $response = Http::withHeaders($this->headers([
+            'Prefer' => 'return=representation',
+        ]))->delete($this->baseUrl . '/game_groups?id=eq.' . $id);
+        $this->logResponse('LessonGameGroups', $response, "DELETE /game_groups (lesson game group) for id '{$id}' completed");
         return $response->successful();
     }
 
